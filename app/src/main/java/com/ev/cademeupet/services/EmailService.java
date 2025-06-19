@@ -21,7 +21,7 @@ public class EmailService
 {
     public static void sendEmail( String to, String petName, String userName ) {
         final String remetente = "dev.ev.sender@gmail.com";
-        final String senha = "htua pssa etxj rbht";
+        final String senha = "htua pssa etxj rbht"; //Old, inactive pass, use yours :)
         
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
