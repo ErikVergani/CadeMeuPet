@@ -1,6 +1,7 @@
 package com.ev.cademeupet;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -44,10 +45,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView( R.layout.activity_main );
         
         Toolbar toolbar = findViewById( R.id.toolbar );
+        toolbar.setBackgroundColor( Color.parseColor( "#6200EE" ) );
         setSupportActionBar(toolbar);
         
-        petsRecyclerView = findViewById( R.id.petsRecyclerView );
-        addPetFab = findViewById( R.id.addPetFab );
+        petsRecyclerView = findViewById( R.id.rv_pet);
+        addPetFab = findViewById( R.id.float_add);
         
         db = FirebaseFirestore.getInstance();
         
@@ -81,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
                     petAdapter.updateList( petList );
                 });
                 
-        Spinner spinnerfilter = findViewById(R.id.spinnerFiltro);
+        Spinner spinnerfilter = findViewById(R.id.filter_spinner);
         
         spinnerfilter.setOnItemSelectedListener( new AdapterView.OnItemSelectedListener() 
         {

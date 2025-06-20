@@ -68,11 +68,10 @@ public class RegisterActivity extends AppCompatActivity
     {
         email = findViewById( R.id.txt_email );
         password = findViewById( R.id.txt_pass );
-        Button registerBtn = findViewById( R.id.registerButton);
+        Button registerBtn = findViewById( R.id.btn_register);
         
         mAuth = FirebaseAuth.getInstance();
         
         registerBtn.setOnClickListener(l -> registerUser() );
     }
-    
 }

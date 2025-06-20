@@ -2,7 +2,10 @@ package com.ev.cademeupet.models;
 
 import com.google.firebase.firestore.Exclude;
 
-public class Pet 
+import java.io.Serializable;
+
+public class Pet
+    implements Serializable 
 {
 public enum STATUS
 {

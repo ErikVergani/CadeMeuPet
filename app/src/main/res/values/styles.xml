@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="SpinnerThemeDark" parent="Widget.AppCompat.Spinner">
+        <item name="android:popupBackground">#2E2E2E</item>
+    </style>
+</resources>

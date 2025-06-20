@@ -3,25 +3,24 @@ package com.ev.cademeupet.activities;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.ev.cademeupet.R;
 import com.ev.cademeupet.models.Pet;
 import com.ev.cademeupet.services.PetService;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -46,6 +45,7 @@ public class AddPetActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_pet);
         
         initComponents();
+        loadData();
     }
     
     @Override
@@ -69,9 +69,9 @@ public class AddPetActivity extends AppCompatActivity {
     
     private void savePet() 
     {
-        String name = inputName.getText().toString();
-        String desc = inputDesc.getText().toString();
-        String data = inputData.getText().toString();
+        String name = inputName.getText().toString().trim().toLowerCase();
+        String desc = inputDesc.getText().toString().trim().toLowerCase();
+        String data = inputData.getText().toString().trim().toLowerCase();
         
         if ( name.isEmpty() || desc.isEmpty() || data.isEmpty() || imageUri == null )
         {
@@ -93,13 +93,13 @@ public class AddPetActivity extends AppCompatActivity {
                                    imageFile.getAbsolutePath(),
                                    Pet.STATUS.MISSING.toString(),
                                    auth.getCurrentUser().getUid(),
-                                    auth.getCurrentUser().getEmail() );
+                                   auth.getCurrentUser().getEmail() );
                 
                 PetService.savePet( pet, o -> {
-                    Toast.makeText(this, "Pet cadastrado com sucesso", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this,  "Pet cadastrado com sucesso", Toast.LENGTH_SHORT ).show();
                     finish();
                 },
-                 e -> Toast.makeText(this, "Erro ao salvar pet", Toast.LENGTH_SHORT).show() );
+                 e -> Toast.makeText( this, "Erro ao salvar pet", Toast.LENGTH_SHORT ).show() );
             }
         }
         
@@ -132,14 +132,49 @@ public class AddPetActivity extends AppCompatActivity {
         }
     }
     
+    private void loadData()
+    {
+        Pet pet = Pet.class.cast( getIntent().getSerializableExtra( "pet" ) );
+        
+        if ( pet != null )
+        {
+            ((TextView) findViewById(R.id.add_pet_title)).setText( "Informações do PET" );
+            inputName.setText( pet.getName() );
+            inputDesc.setText( pet.getDesc() );
+            inputData.setText( pet.getDtMissing() );
+            
+            File imgFile = new File( pet.getImageUrl() );
+            
+            if ( imgFile.exists() )
+            {
+                Bitmap bitmap = BitmapFactory.decodeFile( imgFile.getAbsolutePath() );
+                
+                petImagePreview.setImageBitmap( bitmap );
+            }
+        }
+    }
+    
+    
     private void initComponents()
     {
-        petImagePreview = findViewById( R.id.petImagePreview );
-        inputName = findViewById( R.id.input_name );
-        inputDesc = findViewById( R.id.input_desc );
-        inputData = findViewById( R.id.input_dt );
-        selectImageButton = findViewById( R.id.selectImageButton );
-        savePetButton = findViewById( R.id.savePetButton );
+        petImagePreview = findViewById( R.id.img_pet_preview);
+        inputName = findViewById( R.id.tf_pet_name);
+        inputDesc = findViewById( R.id.tf_pet_desc);
+        inputData = findViewById( R.id.tf_dt_miss);
+        selectImageButton = findViewById( R.id.btn_select_img);
+        savePetButton = findViewById( R.id.btn_save_pet);
+        
+        boolean viewMode = getIntent().getBooleanExtra( "view_mode", false );
+        
+        if ( viewMode )
+        {
+            savePetButton.setVisibility( View.GONE );
+            selectImageButton.setVisibility( View.GONE );
+            
+            inputName.setEnabled( false );
+            inputDesc.setEnabled( false );
+            inputData.setEnabled( false );
+        }
         
         auth = FirebaseAuth.getInstance();
         

@@ -2,48 +2,131 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="#121212"
         tools:context=".activities.EditUser">
 
     <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="16dp"
-            tools:layout_editor_absoluteY="0dp"
-            tools:layout_editor_absoluteX="0dp">
+            android:padding="24dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp">
 
         <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-            <EditText
-                    android:id="@+id/etNome"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Nome completo" />
+            <TextView
+                    android:text="Editar Perfil"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:layout_width="130dp"
+                    android:layout_height="28dp"
+                    android:textColor="@android:color/white"
+                    android:layout_marginBottom="24dp"
+                    android:layout_gravity="center"/>
 
             <EditText
-                    android:id="@+id/etEndereco"
+                    android:id="@+id/tf_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Endereço" />
+                    android:hint="Nome completo"
+                    android:textColorHint="#aaaaaa"
+                    android:textColor="@android:color/white"
+                    android:background="#222222"
+                    android:padding="12dp"
+                    android:layout_marginBottom="16dp" />
 
             <EditText
-                    android:id="@+id/etTelefone"
+                    android:id="@+id/tf_phone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Telefone" />
+                    android:hint="Telefone"
+                    android:inputType="phone"
+                    android:textColorHint="#aaaaaa"
+                    android:textColor="@android:color/white"
+                    android:background="#222222"
+                    android:padding="12dp"
+                    android:layout_marginBottom="24dp" />
+
+            <TextView
+                    android:text="Endereço"
+                    android:textSize="18sp"
+                    android:layout_width="80dp"
+                    android:layout_height="23dp"
+                    android:textColor="@android:color/white"
+                    android:layout_marginBottom="12dp"/>
+
+            <EditText
+                    android:id="@+id/tf_street"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Rua"
+                    android:textColorHint="#aaaaaa"
+                    android:textColor="@android:color/white"
+                    android:background="#222222"
+                    android:padding="12dp"
+                    android:layout_marginBottom="12dp" />
+
+            <EditText
+                    android:id="@+id/tf_home_number"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Número"
+                    android:inputType="number"
+                    android:textColorHint="#aaaaaa"
+                    android:textColor="@android:color/white"
+                    android:background="#222222"
+                    android:padding="12dp"
+                    android:layout_marginBottom="12dp" />
+
+            <EditText
+                    android:id="@+id/tf_district"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Bairro"
+                    android:textColorHint="#aaaaaa"
+                    android:textColor="@android:color/white"
+                    android:background="#222222"
+                    android:padding="12dp"
+                    android:layout_marginBottom="12dp" />
+
+            <EditText
+                    android:id="@+id/tf_city"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Cidade"
+                    android:textColorHint="#aaaaaa"
+                    android:textColor="@android:color/white"
+                    android:background="#222222"
+                    android:padding="12dp"
+                    android:layout_marginBottom="12dp" />
+
+            <EditText
+                    android:id="@+id/tf_uf"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="UF"
+                    android:maxLength="2"
+                    android:inputType="text"
+                    android:textColorHint="#aaaaaa"
+                    android:textColor="@android:color/white"
+                    android:background="#222222"
+                    android:padding="12dp"
+                    android:layout_marginBottom="24dp" />
 
             <Button
-                    android:id="@+id/btnSalvar"
+                    android:id="@+id/btn_save"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Salvar" />
+                    android:text="Salvar"
+                    android:textAllCaps="false"
+                    android:textColor="#ffffff"
+                    android:backgroundTint="#4CAF50"
+                    android:padding="14dp" />
         </LinearLayout>
     </ScrollView>
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,53 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent" android:layout_height="match_parent"
-        android:padding="25dp">
+        android:id="@+id/add_pet_root"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="24dp"
+        android:background="#121212">
 
-    <LinearLayout android:orientation="vertical"
-            android:layout_width="match_parent" android:layout_height="wrap_content">
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp">
+
+        <TextView
+                android:id="@+id/add_pet_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cadastrar Pet Desaparecido"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:layout_marginBottom="16dp" />
 
         <ImageView
-                android:id="@+id/petImagePreview"
+                android:id="@+id/img_pet_preview"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
                 android:scaleType="centerCrop"
-                android:background="#ddd"
+                android:background="#333333"
+                android:layout_marginBottom="12dp"
                 android:contentDescription="Prévia da imagem" />
 
         <Button
-                android:id="@+id/selectImageButton"
+                android:id="@+id/btn_select_img"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Selecionar Imagem"
-                android:insetTop="20dp"
-                android:insetBottom="40dp" />
+                android:textColor="@android:color/white"
+                android:backgroundTint="#333333"
+                android:layout_marginBottom="20dp" />
 
         <EditText
-                android:id="@+id/input_name"
+                android:id="@+id/tf_pet_name"
                 android:hint="Nome do Animal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:singleLine="true" />
-                
+                android:background="#222222"
+                android:textColor="@android:color/white"
+                android:textColorHint="#aaaaaa"
+                android:padding="12dp"
+                android:layout_marginBottom="12dp" />
+
         <EditText
-                android:id="@+id/input_desc"
+                android:id="@+id/tf_pet_desc"
                 android:hint="Descrição"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:singleLine="false" />
+                android:minLines="3"
+                android:gravity="top"
+                android:background="#222222"
+                android:textColor="@android:color/white"
+                android:textColorHint="#aaaaaa"
+                android:padding="12dp"
+                android:layout_marginBottom="12dp" />
 
         <EditText
-                android:id="@+id/input_dt"
+                android:id="@+id/tf_dt_miss"
                 android:hint="Data de desaparecimento"
                 android:inputType="none"
                 android:focusable="false"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:background="#222222"
+                android:textColor="@android:color/white"
+                android:textColorHint="#aaaaaa"
+                android:padding="12dp"
+                android:layout_marginBottom="20dp" />
 
         <Button
-                android:id="@+id/savePetButton"
-                android:text="Salvar Pet"
+                android:id="@+id/btn_save_pet"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:insetTop="25dp" />
+                android:text="Salvar Pet"
+                android:textColor="@android:color/white"
+                android:backgroundTint="#6200EE" />
+
     </LinearLayout>
 </ScrollView>

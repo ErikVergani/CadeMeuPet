@@ -1,7 +1,15 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.CadeMeuPet" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Theme.CadeMeuPet" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        
+        <item name="colorPrimary">#9B52FA</item>
+        <item name="colorPrimaryVariant">#3700B3</item>
+        <item name="colorOnPrimary">#000000</item>
+        <item name="backgroundColor">#121212</item>
+        <item name="colorOnBackground">#FFFFFF</item>
+        <item name="colorSurface">#121212</item>
+        <item name="colorOnSurface">#FFFFFF</item>
     </style>
 </resources>

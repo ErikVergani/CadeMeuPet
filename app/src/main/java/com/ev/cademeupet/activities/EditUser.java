@@ -17,7 +17,7 @@ import java.util.Map;
 
 public class EditUser extends AppCompatActivity 
 {
-    private EditText txtName, txtAddress, txtPhone;
+    private EditText txtName, txtPhone, txtStreet, txtHomeNumber, txtDistrict, txtCity, txtUF;
     private FirebaseFirestore db;
     private String uid;
     
@@ -30,32 +30,45 @@ public class EditUser extends AppCompatActivity
         initComponents();
     }
     
-    private void loadData() {
-        db.collection("users").document(uid)
-                .get()
-                .addOnSuccessListener(doc -> {
-                    if ( doc.exists() )
-                    {
-                        txtName.setText( doc.getString("fullName" ) );
-                        txtAddress.setText( doc.getString("address" ) );
-                        txtPhone.setText( doc.getString("phone" ) );
-                    }
-                });
+    private void loadData() 
+    {
+        db.collection( "users" )
+          .document( uid )
+          .get()
+          .addOnSuccessListener(doc -> 
+          {
+              if ( doc.exists() )
+              {
+                  txtName.setText( doc.getString("fullName" ) );
+                  txtPhone.setText( doc.getString("phone" ) );
+                  
+                  txtStreet.setText( doc.getString("street" ) );
+                  txtHomeNumber.setText( doc.getString("homeNumber" ) );
+                  txtDistrict.setText( doc.getString("district" ) );
+                  txtCity.setText( doc.getString("city" ) );
+                  txtUF.setText( doc.getString("UF" ) );
+              }
+          });
     }
     
     private void saveData() 
     {
         Map<String, Object> updatedData = new HashMap<>();
-        updatedData.put( "fullName", txtName.getText().toString() );
-        updatedData.put( "address", txtAddress.getText().toString() );
-        updatedData.put( "phone", txtPhone.getText().toString() );
         updatedData.put( "email", FirebaseAuth.getInstance().getCurrentUser().getEmail() );
+        updatedData.put( "fullName", txtName.getText().toString().trim().toLowerCase() );
+        updatedData.put( "phone", txtPhone.getText().toString() );
+        
+        updatedData.put( "street", txtStreet.getText().toString().trim().toLowerCase() );
+        updatedData.put( "homeNumber", txtHomeNumber.getText().toString().trim().toLowerCase() );
+        updatedData.put( "district", txtDistrict.getText().toString().trim().toLowerCase() );
+        updatedData.put( "city", txtCity.getText().toString().trim().toLowerCase() );
+        updatedData.put( "UF", txtUF.getText().toString().trim().toLowerCase() );
         
         db.collection("users").document( uid )
                 .set( updatedData, SetOptions.merge() )
                 .addOnSuccessListener( v -> 
                 {
-                    Toast.makeText(this, "Perfil atualizado com sucesso", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Perfil atualizado com sucesso", Toast.LENGTH_SHORT ).show();
                     finish();
                 } )
                 .addOnFailureListener(e -> Toast.makeText(this, "Erro ao atualizar: " + e.getMessage(), Toast.LENGTH_SHORT).show() );
@@ -63,15 +76,19 @@ public class EditUser extends AppCompatActivity
     
     private void initComponents()
     {
-        Button btnSave = findViewById( R.id.btnSalvar );
+        Button btnSave = findViewById( R.id.btn_save );
         btnSave.setOnClickListener(v -> saveData() );
         
         db = FirebaseFirestore.getInstance();
         uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         
-        txtName = findViewById( R.id.etNome );
-        txtAddress = findViewById( R.id.etEndereco );
-        txtPhone = findViewById( R.id.etTelefone );
+        txtName = findViewById( R.id.tf_name);
+        txtPhone = findViewById( R.id.tf_phone);
+        txtStreet = findViewById( R.id.tf_street );
+        txtHomeNumber = findViewById( R.id.tf_home_number );
+        txtDistrict = findViewById( R.id.tf_district );
+        txtCity = findViewById( R.id.tf_city );
+        txtUF = findViewById( R.id.tf_uf );
         
         loadData();
     }

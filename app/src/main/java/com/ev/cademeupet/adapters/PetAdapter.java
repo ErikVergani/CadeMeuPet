@@ -1,6 +1,7 @@
 package com.ev.cademeupet.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -18,6 +19,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ev.cademeupet.R;
+import com.ev.cademeupet.activities.AddPetActivity;
+import com.ev.cademeupet.models.User;
 import com.ev.cademeupet.models.Pet;
 import com.ev.cademeupet.services.EmailService;
 import com.google.firebase.auth.FirebaseAuth;
@@ -50,11 +53,18 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.PetViewHolder> {
     {
         Pet pet = petList.get( position );
         
-        holder.petDesc.setText( pet.getDesc() );
-        holder.petData.setText( "Desaparecido em: " + pet.getDtMissing() );
-        holder.statusTag.setText( pet.getStatus().toString() );
+        holder.name.setText( pet.getName() );
+        holder.data.setText( "Desaparecido em: " + pet.getDtMissing() );
+        holder.statusTag.setText( pet.getStatus() );
         
         holder.statusTag.setBackgroundColor( pet.getStatusEnum() == Pet.STATUS.FOUND ? Color.parseColor("#4CAF50") : Color.parseColor( "#F44336" ) );
+        
+        holder.itemView.setOnClickListener( c -> {
+            Intent intent = new Intent(context, AddPetActivity.class);
+            intent.putExtra( "view_mode", true );
+            intent.putExtra("pet", pet );
+            context.startActivity( intent );
+        });
         
         File imgFile = new File( pet.getImageUrl() );
         
@@ -79,17 +89,10 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.PetViewHolder> {
                              {
                                 if ( documentSnapshot.exists() ) 
                                 {
-                                    String address = documentSnapshot.getString("address");
-                                    String email = documentSnapshot.getString( "email" );
-                                    
-                                    if ( email != null && address != null )
-                                    {
-                                        EmailService.sendEmail(
-                                                pet.getOwnerEmail(),
-                                                pet.getName(),
-                                                address
-                                        );
-                                    }
+                                    EmailService.sendEmail(
+                                            pet,
+                                            documentSnapshot.toObject( User.class )
+                                    );
                                 }
                             })
                             .addOnFailureListener(e -> {
@@ -128,18 +131,18 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.PetViewHolder> {
     static class PetViewHolder extends RecyclerView.ViewHolder 
     {
         ImageView petImageView;
-        TextView petDesc, petData, statusTag;
+        TextView name, data, statusTag;
         Button findButton;
         
         public PetViewHolder( @NonNull View itemView ) 
         {
             super( itemView );
             
-            petImageView = itemView.findViewById( R.id.petImageView );
-            petDesc = itemView.findViewById( R.id.petDescricao );
-            petData = itemView.findViewById( R.id.petData );
-            statusTag = itemView.findViewById( R.id.statusTag );
-            findButton = itemView.findViewById( R.id.encontreiButton );
+            petImageView = itemView.findViewById( R.id.img_pet );
+            name = itemView.findViewById( R.id.txt_name );
+            data = itemView.findViewById( R.id.dt_miss );
+            statusTag = itemView.findViewById( R.id.pet_status );
+            findButton = itemView.findViewById( R.id.btn_found );
         }
     }
     

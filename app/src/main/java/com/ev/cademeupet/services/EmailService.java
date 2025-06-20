@@ -1,10 +1,10 @@
 package com.ev.cademeupet.services;
 
-import android.content.ActivityNotFoundException;
-import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
-import android.widget.Toast;
+
+import com.ev.cademeupet.models.User;
+import com.ev.cademeupet.models.Pet;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Properties;
 
@@ -19,8 +19,9 @@ import javax.mail.internet.MimeMessage;
 
 public class EmailService 
 {
-    public static void sendEmail( String to, String petName, String userName ) {
-        final String remetente = "dev.ev.sender@gmail.com";
+    public static void sendEmail( Pet pet, User user ) 
+    {
+        final String sender = "dev.ev.sender@gmail.com";
         final String senha = "htua pssa etxj rbht"; //Old, inactive pass, use yours :)
         
         Properties props = new Properties();
@@ -32,27 +33,28 @@ public class EmailService
         Session session = Session.getInstance(props, new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(remetente, senha);
+                return new PasswordAuthentication(sender, senha);
             }
         });
         
-        String assunto = "Boas notícias! Seu pet pode ter sido encontrado!";
-        String corpo = "Olá!\n\n" +
-                "Alguém viu o seu pet \"" + petName + "\" e clicou em 'Encontrei seu pet' no aplicativo Cadê Meu Pet!\n\n" +
+        String subject = "Boas notícias! Seu pet pode ter sido encontrado!";
+        
+        String text = "Olá!\n\n" +
+                "O usuário " + user.getFullName() + " viu o seu pet \"" + pet.getName() + "\" e clicou em 'Encontrei seu pet' no aplicativo Cadê Meu Pet!\n\n" +
                 "Veja onde essa pessoa estava: \n" +
-                "https://www.google.com/maps/search/?api=1&query=" +
-                Uri.encode(userName) + "\n\n" +
-                "Esperamos que vocês se reencontrem em breve! 🐾";
+                "https://www.google.com/maps/search/?api=1&query=" + Uri.encode( user.getFullAddress() ) + "\n" +
+                "Entre em contato com o usuário através do número: " + user.getPhone() +
+                "\n\n Esperamos que vocês se reencontrem em breve! 🐾";
         
         new Thread(() -> {
             try {
-                Message message = new MimeMessage(session);
-                message.setFrom(new InternetAddress(remetente));
-                message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
-                message.setSubject(assunto);
-                message.setText( corpo );
+                Message message = new MimeMessage( session );
+                message.setFrom(new InternetAddress( sender ) );
+                message.setRecipients(Message.RecipientType.TO, InternetAddress.parse( pet.getOwnerEmail() ) );
+                message.setSubject( subject );
+                message.setText( text );
                 
-                Transport.send(message);
+                Transport.send( message );
                 
             } catch (MessagingException e) {
                 e.printStackTrace();

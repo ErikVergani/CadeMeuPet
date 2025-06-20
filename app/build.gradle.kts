@@ -52,6 +52,7 @@ dependencies {
     implementation (libs.android.activation)
     implementation(libs.firebase.storage)
     annotationProcessor (libs.compiler)
+    implementation (libs.androidx.cardview)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
