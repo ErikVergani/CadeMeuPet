@@ -24,7 +24,10 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -65,25 +68,40 @@ public class MainActivity extends AppCompatActivity {
         
         db.collection( "pets" )
                 .addSnapshotListener( ( value, error ) -> {
-                    if ( error != null )
-                    {
-                        Log.w("FirestoreListener", "Listen failed.", error);
-                        return;
-                    }
-                    
-                    List<Pet> petList = new ArrayList<>();
-                    
-                    for ( QueryDocumentSnapshot doc : value )
-                    {
-                        Pet pet = doc.toObject( Pet.class );
-                        petList.add( pet );
-                    }
+                            if (error != null) {
+                                Log.w("FirestoreListener", "Listen failed.", error);
+                                return;
+                            }
+                            
+                            List<Pet> petList = new ArrayList<>();
+                            
+                            for (QueryDocumentSnapshot doc : value) {
+                                Pet pet = doc.toObject(Pet.class);
+                                petList.add(pet);
+                            }
+                            
+                            Collections.sort(petList, (p1, p2) -> {
+                                try 
+                                {
+                                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                                    
+                                    Date d1 = sdf.parse( p1.getDtMissing() );
+                                    Date d2 = sdf.parse( p2.getDtMissing() );
+                                    
+                                    return d1.compareTo( d2 );
+                                } 
+                                
+                                catch ( Exception e ) 
+                                {
+                                    return 0;
+                                }
+                            });
                     
                     this.allPets = petList;
                     petAdapter.updateList( petList );
                 });
                 
-        Spinner spinnerfilter = findViewById(R.id.filter_spinner);
+        Spinner spinnerfilter = findViewById( R.id.filter_spinner );
         
         spinnerfilter.setOnItemSelectedListener( new AdapterView.OnItemSelectedListener() 
         {
@@ -91,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
             public void onItemSelected( AdapterView<?> parent, View view, int position, long id )
             {
                 String selectedFilter = parent.getItemAtPosition( position ).toString();
-                aplicarFiltro( selectedFilter );
+                appyFilter( selectedFilter );
             }
             
             @Override
@@ -118,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected( item );
     }
     
-    private void aplicarFiltro( String filter ) 
+    private void appyFilter(String filter ) 
     {
         List<Pet> filteredList = new ArrayList<>();
         

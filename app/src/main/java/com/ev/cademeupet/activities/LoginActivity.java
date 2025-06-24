@@ -29,7 +29,7 @@ public class LoginActivity extends AppCompatActivity
         
         initComponents();
         
-        ViewCompat.setOnApplyWindowInsetsListener( findViewById(R.id.main), (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener( findViewById( R.id.main ), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
@@ -66,7 +66,7 @@ public class LoginActivity extends AppCompatActivity
         txtPass = findViewById( R.id.txt_pass );
         
         Button loginButton = findViewById( R.id.btn_login );
-        TextView registerLink = findViewById( R.id.btn_register );
+        TextView registerLink = findViewById( R.id.btn_add_user );
         
         loginButton.setOnClickListener(l -> doLogin() );
         registerLink.setOnClickListener(l -> startActivity( new Intent( LoginActivity.this, RegisterActivity.class ) ) );

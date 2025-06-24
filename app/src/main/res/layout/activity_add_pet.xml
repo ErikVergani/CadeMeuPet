@@ -27,8 +27,9 @@
         <ImageView
                 android:id="@+id/img_pet_preview"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:scaleType="centerCrop"
+                android:layout_height="341dp"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
                 android:background="#333333"
                 android:layout_marginBottom="12dp"
                 android:contentDescription="Prévia da imagem" />

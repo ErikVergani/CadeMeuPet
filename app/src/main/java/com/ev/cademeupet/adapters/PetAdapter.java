@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -59,6 +58,16 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.PetViewHolder> {
         
         holder.statusTag.setBackgroundColor( pet.getStatusEnum() == Pet.STATUS.FOUND ? Color.parseColor("#4CAF50") : Color.parseColor( "#F44336" ) );
         
+        if ( pet.getStatusEnum() == Pet.STATUS.MISSING )
+        {
+            holder.findButton.setVisibility( View.VISIBLE );
+        } 
+        
+        else
+        {
+            holder.findButton.setVisibility( View.GONE );
+        }
+        
         holder.itemView.setOnClickListener( c -> {
             Intent intent = new Intent(context, AddPetActivity.class);
             intent.putExtra( "view_mode", true );
@@ -70,14 +79,8 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.PetViewHolder> {
         
         if ( imgFile.exists() )
         {
-            Bitmap bitmap = tryFixRotation( imgFile.getAbsolutePath() );
-            holder.petImageView.setImageBitmap( bitmap );
+            holder.petImageView.setImageBitmap( tryFixRotation( imgFile.getAbsolutePath() ) );
         } 
-        
-        else 
-        {
-//            holder.petImageView.setImageResource(R.drawable.placeholder);
-        }
         
         holder.findButton.setOnClickListener( v -> 
         {
@@ -164,16 +167,7 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.PetViewHolder> {
             options.inSampleSize = scaleFactor;
             options.inPurgeable = true;
             
-            Bitmap bitmap = BitmapFactory.decodeFile(path, options);
-            
-            // 🔁 Se altura maior que largura, gira 90 graus
-            if (bitmap.getHeight() > bitmap.getWidth()) {
-                Matrix matrix = new Matrix();
-                matrix.postRotate(90);
-                return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-            }
-            
-            return bitmap;
+            return BitmapFactory.decodeFile(path, options);
             
         } catch (Exception e) {
             e.printStackTrace();

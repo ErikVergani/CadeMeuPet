@@ -4,10 +4,12 @@ import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -82,6 +84,17 @@ public class AddPetActivity extends AppCompatActivity {
         try 
         {
             Bitmap bitmap = MediaStore.Images.Media.getBitmap( getContentResolver(), imageUri );
+            
+            Matrix matrix = new Matrix();
+            matrix.postRotate( 90 );
+            bitmap = Bitmap.createBitmap(
+                    bitmap,
+                    0, 0,
+                    bitmap.getWidth(),
+                    bitmap.getHeight(),
+                    matrix,
+                    true );
+                    
             File imageFile = saveLocalImage( bitmap );
             
             if ( imageFile != null )
@@ -174,6 +187,10 @@ public class AddPetActivity extends AppCompatActivity {
             inputName.setEnabled( false );
             inputDesc.setEnabled( false );
             inputData.setEnabled( false );
+            
+            ViewGroup.LayoutParams params = petImagePreview.getLayoutParams();
+            params.height = (int)( 475 * getResources().getDisplayMetrics().density + 0.5f );
+            petImagePreview.setLayoutParams( params );
         }
         
         auth = FirebaseAuth.getInstance();

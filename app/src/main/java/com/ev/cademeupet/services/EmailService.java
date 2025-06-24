@@ -4,7 +4,6 @@ import android.net.Uri;
 
 import com.ev.cademeupet.models.User;
 import com.ev.cademeupet.models.Pet;
-import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Properties;
 
@@ -22,7 +21,7 @@ public class EmailService
     public static void sendEmail( Pet pet, User user ) 
     {
         final String sender = "dev.ev.sender@gmail.com";
-        final String senha = "htua pssa etxj rbht"; //Old, inactive pass, use yours :)
+        final String pass = "htua pssa etxj rbht"; //Old, inactive pass, use yours :)
         
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
@@ -33,7 +32,7 @@ public class EmailService
         Session session = Session.getInstance(props, new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(sender, senha);
+                return new PasswordAuthentication( sender, pass );
             }
         });
         
@@ -41,10 +40,10 @@ public class EmailService
         
         String text = "Olá!\n\n" +
                 "O usuário " + user.getFullName() + " viu o seu pet \"" + pet.getName() + "\" e clicou em 'Encontrei seu pet' no aplicativo Cadê Meu Pet!\n\n" +
-                "Veja onde essa pessoa estava: \n" +
+                "Veja onde encontrar essa pessoa: \n" +
                 "https://www.google.com/maps/search/?api=1&query=" + Uri.encode( user.getFullAddress() ) + "\n" +
                 "Entre em contato com o usuário através do número: " + user.getPhone() +
-                "\n\n Esperamos que vocês se reencontrem em breve! 🐾";
+                "\n\n Esperamos que vocês se reencontrem em breve! 🐾❤️";
         
         new Thread(() -> {
             try {
