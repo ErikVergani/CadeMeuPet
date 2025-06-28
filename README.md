@@ -30,12 +30,6 @@
 
 ---
 
-## 📸 Capturas de Tela
-
-
-
----
-
 ## 🚀 Como rodar o projeto localmente
 
 1. Clone o repositório:
