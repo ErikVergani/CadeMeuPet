@@ -5,4 +5,6 @@
         <item>Desaparecido</item>
         <item>Encontrado</item>
     </string-array>
+
+    <string name="default_web_client_id" translatable="false">SEU_WEB_CLIENT_ID_AQUI</string>
 </resources>

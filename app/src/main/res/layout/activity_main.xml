@@ -11,7 +11,6 @@
             android:background="?attr/colorPrimary"
             android:elevation="4dp"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-            android:titleTextColor="@android:color/white"
             android:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
     <LinearLayout
@@ -27,7 +26,7 @@
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Filtrar:"
+                android:text="Filtrar Status:"
                 android:textStyle="bold"
                 android:textColor="@android:color/white"
                 android:textSize="16sp"
@@ -35,9 +34,19 @@
 
         <Spinner
                 android:id="@+id/filter_spinner"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:entries="@array/filtros_status"/>
+
+        <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switch_my_posts"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:entries="@array/filtros_status"/>
+                android:text="Meus Posts"
+                android:textColor="@android:color/white"
+                android:layout_marginStart="16dp"/>
+
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView

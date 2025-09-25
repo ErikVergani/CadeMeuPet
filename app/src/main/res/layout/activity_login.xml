@@ -93,6 +93,18 @@
                     android:backgroundTint="#2196F3"
                     android:textColor="#FFF"
                     android:layout_marginTop="8dp" />
+
+            <Button
+                    android:id="@+id/btn_google_login"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Entrar com Google"
+                    android:textStyle="bold"
+                    android:backgroundTint="#DB4437"
+                    android:textColor="#FFF"
+                    android:layout_marginTop="8dp" />
+                    
+                    
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

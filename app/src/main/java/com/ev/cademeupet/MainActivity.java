@@ -10,167 +10,130 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Spinner;
 import androidx.appcompat.widget.Toolbar;
-
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.ev.cademeupet.activities.AddPetActivity;
 import com.ev.cademeupet.activities.EditUser;
 import com.ev.cademeupet.adapters.PetAdapter;
 import com.ev.cademeupet.models.Pet;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-
+import com.google.firebase.firestore.Query;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MainActivity extends AppCompatActivity {
     
     private RecyclerView petsRecyclerView;
-    private FloatingActionButton addPetFab;
-    private List<Pet> petList = new ArrayList<>();
     private List<Pet> allPets = new ArrayList<>();
     private PetAdapter petAdapter;
-    
     private FirebaseFirestore db;
+    private FirebaseAuth auth;
+    
+    private Spinner statusSpinner;
+    private SwitchCompat myPostsSwitch;
     
     @Override
-    protected void onCreate( Bundle savedInstanceState ) 
-    {
-        super.onCreate( savedInstanceState );
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
         
-        setContentView( R.layout.activity_main );
-        
-        Toolbar toolbar = findViewById( R.id.toolbar );
-        toolbar.setBackgroundColor( Color.parseColor( "#6200EE" ) );
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setBackgroundColor(Color.parseColor("#6200EE"));
         setSupportActionBar(toolbar);
         
-        petsRecyclerView = findViewById( R.id.rv_pet);
-        addPetFab = findViewById( R.id.float_add);
-        
         db = FirebaseFirestore.getInstance();
+        auth = FirebaseAuth.getInstance();
         
-        petAdapter = new PetAdapter( this, petList );
-        petsRecyclerView.setLayoutManager( new LinearLayoutManager( this ) );
-        petsRecyclerView.setAdapter( petAdapter );
+        petsRecyclerView = findViewById(R.id.rv_pet);
+        FloatingActionButton addPetFab = findViewById(R.id.float_add);
+        statusSpinner = findViewById(R.id.filter_spinner);
+        myPostsSwitch = findViewById(R.id.switch_my_posts);
         
-        addPetFab.setOnClickListener(v -> startActivity( new Intent( this, AddPetActivity.class ) ) );
+        petAdapter = new PetAdapter(this, new ArrayList<>());
+        petsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        petsRecyclerView.setAdapter(petAdapter);
         
-        loadPets();
+        addPetFab.setOnClickListener(v -> startActivity(new Intent(this, AddPetActivity.class)));
         
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        
-        db.collection( "pets" )
-                .addSnapshotListener( ( value, error ) -> {
-                            if (error != null) {
-                                Log.w("FirestoreListener", "Listen failed.", error);
-                                return;
-                            }
-                            
-                            List<Pet> petList = new ArrayList<>();
-                            
-                            for (QueryDocumentSnapshot doc : value) {
-                                Pet pet = doc.toObject(Pet.class);
-                                petList.add(pet);
-                            }
-                            
-                            Collections.sort(petList, (p1, p2) -> {
-                                try 
-                                {
-                                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-                                    
-                                    Date d1 = sdf.parse( p1.getDtMissing() );
-                                    Date d2 = sdf.parse( p2.getDtMissing() );
-                                    
-                                    return d1.compareTo( d2 );
-                                } 
-                                
-                                catch ( Exception e ) 
-                                {
-                                    return 0;
-                                }
-                            });
-                    
-                    this.allPets = petList;
-                    petAdapter.updateList( petList );
-                });
-                
-        Spinner spinnerfilter = findViewById( R.id.filter_spinner );
-        
-        spinnerfilter.setOnItemSelectedListener( new AdapterView.OnItemSelectedListener() 
-        {
+        setupFilters();
+        listenToPetUpdates();
+    }
+    
+    private void setupFilters() {
+        AdapterView.OnItemSelectedListener filterListener = new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onItemSelected( AdapterView<?> parent, View view, int position, long id )
-            {
-                String selectedFilter = parent.getItemAtPosition( position ).toString();
-                appyFilter( selectedFilter );
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                applyFilters();
             }
-            
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
-        });
+        };
+        
+        statusSpinner.setOnItemSelectedListener(filterListener);
+        myPostsSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> applyFilters());
+    }
+    
+    private void listenToPetUpdates() {
+        db.collection("pets")
+                .orderBy("dtMissing", Query.Direction.DESCENDING)
+                .addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        Log.w("FirestoreListener", "Listen failed.", error);
+                        return;
+                    }
+                    allPets.clear();
+                    if (value != null) {
+                        allPets.addAll(value.toObjects(Pet.class));
+                    }
+                    applyFilters();
+                });
+    }
+    
+    private void applyFilters() {
+        if (auth.getCurrentUser() == null) return;
+        
+        List<Pet> filteredList = new ArrayList<>(allPets);
+        String currentUserId = auth.getCurrentUser().getUid();
+        
+        // Filtro "Meus Posts"
+        if (myPostsSwitch.isChecked()) {
+            filteredList = filteredList.stream()
+                    .filter(pet -> currentUserId.equals(pet.getOwnerId()))
+                    .collect(Collectors.toList());
+        }
+        
+        // Filtro de Status
+        String selectedStatus = statusSpinner.getSelectedItem().toString();
+        if (!selectedStatus.equals("Todos")) {
+            filteredList = filteredList.stream()
+                    .filter(pet -> selectedStatus.equalsIgnoreCase(pet.getStatus()))
+                    .collect(Collectors.toList());
+        }
+        
+        petAdapter.updateList(filteredList);
     }
     
     @Override
-    public boolean onCreateOptionsMenu( Menu menu ) 
-    {
-        getMenuInflater().inflate( R.menu.menu_main, menu );
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
     
     @Override
-    public boolean onOptionsItemSelected( MenuItem item ) 
-    {
-        if ( item.getItemId() == R.id.menu_editar_perfil )
-        {
-            startActivity( new Intent(this, EditUser.class ) );
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.menu_editar_perfil) {
+            startActivity(new Intent(this, EditUser.class));
             return true;
         }
-        
-        return super.onOptionsItemSelected( item );
-    }
-    
-    private void appyFilter(String filter ) 
-    {
-        List<Pet> filteredList = new ArrayList<>();
-        
-        if ( filter.equals( "Todos" ) )
-        {
-            petAdapter.updateList( allPets );
-            return;
-        }
-        
-        for ( Pet pet : allPets ) 
-        {
-            if ( pet.getStatus().toString().equalsIgnoreCase( filter ) ) 
-            {
-                filteredList.add( pet );
-            }
-        }
-        
-        petAdapter.updateList( filteredList );
-    }
-    
-    
-    private void loadPets() 
-    {
-        db.collection( "pets" ).get()
-          .addOnSuccessListener(queryDocumentSnapshots -> 
-          {
-            petList.clear();
-            
-            for ( DocumentSnapshot doc : queryDocumentSnapshots )
-            {
-                Pet pet = doc.toObject( Pet.class );
-                petList.add( pet );
-            }
-            petAdapter.notifyDataSetChanged();
-          });
+        return super.onOptionsItemSelected(item);
     }
 }

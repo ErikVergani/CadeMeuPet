@@ -20,6 +20,12 @@
             android:roundIcon="@drawable/icon"
             android:supportsRtl="true"
             tools:targetApi="31">
+
+        <!-- Activity de Detalhes do Pet ADICIONADA AQUI -->
+        <activity
+                android:name=".activities.PetDetailActivity"
+                android:exported="false" />
+
         <activity
                 android:name=".activities.EditUser"
                 android:exported="false" />
