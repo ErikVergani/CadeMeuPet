@@ -19,6 +19,9 @@ import com.ev.cademeupet.activities.EditUser;
 import com.ev.cademeupet.activities.LoginActivity;
 import com.ev.cademeupet.adapters.PetAdapter;
 import com.ev.cademeupet.models.Pet;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -34,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private PetAdapter petAdapter;
     private FirebaseFirestore db;
     private FirebaseAuth auth;
+    private GoogleSignInClient mGoogleSignInClient;
     
     private Spinner statusSpinner;
     private SwitchCompat myPostsSwitch;
@@ -49,6 +53,12 @@ public class MainActivity extends AppCompatActivity {
         
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
+        
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
         
         petsRecyclerView = findViewById(R.id.rv_pet);
         FloatingActionButton addPetFab = findViewById(R.id.float_add);
@@ -133,9 +143,12 @@ public class MainActivity extends AppCompatActivity {
             return true;
         } else if (itemId == R.id.menu_sair) {
             auth.signOut();
-            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-            startActivity(intent);
-            finish();
+            mGoogleSignInClient.signOut().addOnCompleteListener(this,
+                    task -> {
+                        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                        startActivity(intent);
+                        finish();
+                    });
             return true;
         }
         return super.onOptionsItemSelected(item);
