@@ -16,17 +16,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.ev.cademeupet.activities.AddPetActivity;
 import com.ev.cademeupet.activities.EditUser;
+import com.ev.cademeupet.activities.LoginActivity;
 import com.ev.cademeupet.adapters.PetAdapter;
 import com.ev.cademeupet.models.Pet;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -130,8 +127,15 @@ public class MainActivity extends AppCompatActivity {
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.menu_editar_perfil) {
+        int itemId = item.getItemId();
+        if (itemId == R.id.menu_editar_perfil) {
             startActivity(new Intent(this, EditUser.class));
+            return true;
+        } else if (itemId == R.id.menu_sair) {
+            auth.signOut();
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
             return true;
         }
         return super.onOptionsItemSelected(item);
