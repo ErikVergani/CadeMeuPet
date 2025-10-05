@@ -4,5 +4,9 @@
             android:id="@+id/menu_editar_perfil"
             android:title="Editar Perfil"
             android:icon="@android:drawable/ic_menu_manage"
-            app:showAsAction="always" />
+            app:showAsAction="ifRoom" />
+    <item
+            android:id="@+id/menu_sair"
+            android:title="Sair"
+            app:showAsAction="never" />
 </menu>
