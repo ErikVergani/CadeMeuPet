@@ -1,12 +1,16 @@
 package com.ev.cademeupet.activities;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -34,6 +38,8 @@ public class PetDetailActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private SightingAdapter sightingAdapter;
     private List<Sighting> sightingList = new ArrayList<>();
+    private Button btnReportSighting, btnEditPet, btnDeletePet;
+    private LinearLayout ownerActionsContainer;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,16 +60,58 @@ public class PetDetailActivity extends AppCompatActivity {
         setupPetDetails();
         setupRecyclerView();
         loadSightings();
+        setupButtons();
+    }
+    
+    private void setupButtons() {
+        btnReportSighting = findViewById(R.id.btn_report_sighting);
+        ownerActionsContainer = findViewById(R.id.owner_actions_container);
+        btnEditPet = findViewById(R.id.btn_edit_pet);
+        btnDeletePet = findViewById(R.id.btn_delete_pet);
         
-        Button btnReportSighting = findViewById(R.id.btn_report_sighting);
+        String currentUserId = auth.getCurrentUser().getUid();
         
-        if ( currentPet.getStatus().equalsIgnoreCase("Encontrado") )
-        {
-            btnReportSighting.setEnabled( false );
-            btnReportSighting.setBackgroundColor( Color.rgb( 128,128,128 ) );
+        if (currentUserId != null && currentUserId.equals(currentPet.getOwnerId())) {
+            btnReportSighting.setVisibility(View.GONE);
+            ownerActionsContainer.setVisibility(View.VISIBLE);
+        } else {
+            btnReportSighting.setVisibility(View.VISIBLE);
+            ownerActionsContainer.setVisibility(View.GONE);
+        }
+        
+        if (currentPet.getStatus().equalsIgnoreCase("Encontrado")) {
+            btnReportSighting.setEnabled(false);
+            btnReportSighting.setBackgroundColor(Color.rgb(128, 128, 128));
         }
         btnReportSighting.setOnClickListener(v -> reportSighting());
+        btnEditPet.setOnClickListener(v -> editPet());
+        btnDeletePet.setOnClickListener(v -> showDeleteConfirmationDialog());
     }
+    
+    private void editPet() {
+        Intent intent = new Intent(this, AddPetActivity.class);
+        intent.putExtra("pet_to_edit", currentPet);
+        startActivity(intent);
+    }
+    
+    private void showDeleteConfirmationDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Excluir Publicação")
+                .setMessage("Tem a certeza de que deseja excluir esta publicação?")
+                .setPositiveButton("Sim, Excluir", (dialog, which) -> deletePet())
+                .setNegativeButton("Cancelar", null)
+                .show();
+    }
+    
+    private void deletePet() {
+        db.collection("pets").document(currentPet.getId()).delete()
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, "Publicação excluída com sucesso.", Toast.LENGTH_SHORT).show();
+                    finish();
+                })
+                .addOnFailureListener(e -> Toast.makeText(this, "Erro ao excluir a publicação.", Toast.LENGTH_SHORT).show());
+    }
+    
     
     private void setupPetDetails() {
         TextView petName = findViewById(R.id.detail_pet_name);
@@ -148,7 +196,7 @@ public class PetDetailActivity extends AppCompatActivity {
                                     
                                     EmailService.sendEmail(
                                             currentPet,
-                                            documentSnapshot.toObject( User.class ));
+                                            documentSnapshot.toObject(User.class));
                                 })
                                 .addOnFailureListener(err -> {
                                     Log.e(TAG, "Erro ao guardar o avistamento no Firestore.", err);
@@ -165,4 +213,3 @@ public class PetDetailActivity extends AppCompatActivity {
                 });
     }
 }
-

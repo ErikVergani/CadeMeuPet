@@ -19,6 +19,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.ev.cademeupet.R;
 import com.ev.cademeupet.models.Pet;
 import com.ev.cademeupet.services.PetService;
@@ -37,9 +38,11 @@ public class AddPetActivity extends AppCompatActivity {
     private ImageView petImagePreview;
     private EditText inputDesc, inputData, inputName;
     private Button selectImageButton, savePetButton;
+    private TextView title;
     
     private Uri imageUri;
     private FirebaseAuth auth;
+    private Pet petToEdit;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,156 +50,119 @@ public class AddPetActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_pet);
         
         initComponents();
-        loadData();
+        loadDataIfEditing();
     }
     
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult( requestCode, resultCode, data );
+        super.onActivityResult(requestCode, resultCode, data);
         
-        if ( requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null )
-        {
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
             imageUri = data.getData();
-            petImagePreview.setImageURI( imageUri );
+            petImagePreview.setImageURI(imageUri);
         }
     }
     
-    private void openFileChooser() 
-    {
+    private void openFileChooser() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
-        
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
     
-    private void savePet() 
-    {
-        String name = inputName.getText().toString().trim().toLowerCase();
-        String desc = inputDesc.getText().toString().trim().toLowerCase();
-        String data = inputData.getText().toString().trim().toLowerCase();
+    private void savePet() {
+        String name = inputName.getText().toString().trim();
+        String desc = inputDesc.getText().toString().trim();
+        String data = inputData.getText().toString().trim();
         
-        if ( name.isEmpty() || desc.isEmpty() || data.isEmpty() || imageUri == null )
-        {
-            Toast.makeText(this, "Preencha todos os campos e selecione uma imagem", Toast.LENGTH_SHORT ).show();
+        if (name.isEmpty() || desc.isEmpty() || data.isEmpty()) {
+            Toast.makeText(this, "Preencha todos os campos", Toast.LENGTH_SHORT).show();
             return;
         }
         
-        try 
-        {
-            Bitmap bitmap = MediaStore.Images.Media.getBitmap( getContentResolver(), imageUri );
-            
-            Matrix matrix = new Matrix();
-            matrix.postRotate( 90 );
-            bitmap = Bitmap.createBitmap(
-                    bitmap,
-                    0, 0,
-                    bitmap.getWidth(),
-                    bitmap.getHeight(),
-                    matrix,
-                    true );
-                    
-            File imageFile = saveLocalImage( bitmap );
-            
-            if ( imageFile != null )
-            {
-                Pet pet = new Pet( UUID.randomUUID().toString(),
-                                   name,
-                                   desc,
-                                   data,
-                                   imageFile.getAbsolutePath(),
-                                   Pet.STATUS.MISSING.toString(),
-                                   auth.getCurrentUser().getUid(),
-                                   auth.getCurrentUser().getEmail() );
-                
-                PetService.savePet( pet, o -> {
-                    Toast.makeText(this,  "Pet cadastrado com sucesso", Toast.LENGTH_SHORT ).show();
-                    finish();
-                },
-                 e -> Toast.makeText( this, "Erro ao salvar pet", Toast.LENGTH_SHORT ).show() );
-            }
+        // Se for um novo pet, a imagem é obrigatória
+        if (petToEdit == null && imageUri == null) {
+            Toast.makeText(this, "Selecione uma imagem para o pet", Toast.LENGTH_SHORT).show();
+            return;
         }
         
-        catch ( IOException e ) 
-        {
-            e.printStackTrace();
-            Toast.makeText(this, "Erro ao processar imagem", Toast.LENGTH_SHORT).show();
+        String petId = (petToEdit != null) ? petToEdit.getId() : UUID.randomUUID().toString();
+        String ownerId = auth.getCurrentUser().getUid();
+        String ownerEmail = auth.getCurrentUser().getEmail();
+        String status = (petToEdit != null) ? petToEdit.getStatus() : Pet.STATUS.MISSING.toString();
+        String imageUrl = (petToEdit != null) ? petToEdit.getImageUrl() : ""; // Será atualizado se nova imagem for selecionada
+        
+        Pet pet = new Pet(petId, name, desc, data, imageUrl, status, ownerId, ownerEmail);
+        
+        if (imageUri != null) {
+            // Lógica de salvar imagem (a mesma que você já tem)
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+                File imageFile = saveLocalImage(bitmap);
+                if (imageFile != null) {
+                    pet.setImageUrl(imageFile.getAbsolutePath());
+                    savePetToFirestore(pet);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Erro ao processar imagem", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            // Nenhuma nova imagem selecionada, apenas salvar as outras informações
+            savePetToFirestore(pet);
         }
     }
     
-    private File saveLocalImage( Bitmap bitmap ) 
-    {
-        File dir = new File( getExternalFilesDir( null ), "Pets" );
-        if ( !dir.exists() ) dir.mkdirs();
-        
+    private void savePetToFirestore(Pet pet) {
+        PetService.savePet(pet, o -> {
+            Toast.makeText(this, "Pet salvo com sucesso", Toast.LENGTH_SHORT).show();
+            finish();
+        }, e -> Toast.makeText(this, "Erro ao salvar pet", Toast.LENGTH_SHORT).show());
+    }
+    
+    private File saveLocalImage(Bitmap bitmap) {
+        File dir = new File(getExternalFilesDir(null), "Pets");
+        if (!dir.exists()) dir.mkdirs();
         String fileName = "pet_" + System.currentTimeMillis() + ".jpg";
-        File file = new File( dir, fileName );
-        
-        try ( FileOutputStream out = new FileOutputStream( file ) ) 
-        {
-            bitmap.compress( Bitmap.CompressFormat.JPEG, 90, out );
-            
+        File file = new File(dir, fileName);
+        try (FileOutputStream out = new FileOutputStream(file)) {
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
             return file;
-        } 
-        
-        catch ( IOException e )
-        {
+        } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
     }
     
-    private void loadData()
-    {
-        Pet pet = Pet.class.cast( getIntent().getSerializableExtra( "pet" ) );
+    private void loadDataIfEditing() {
+        petToEdit = (Pet) getIntent().getSerializableExtra("pet_to_edit");
         
-        if ( pet != null )
-        {
-            ((TextView) findViewById(R.id.add_pet_title)).setText( "Informações do PET" );
-            inputName.setText( pet.getName() );
-            inputDesc.setText( pet.getDesc() );
-            inputData.setText( pet.getDtMissing() );
+        if (petToEdit != null) {
+            title.setText("Editar Informações do Pet");
+            inputName.setText(petToEdit.getName());
+            inputDesc.setText(petToEdit.getDesc());
+            inputData.setText(petToEdit.getDtMissing());
             
-            File imgFile = new File( pet.getImageUrl() );
-            
-            if ( imgFile.exists() )
-            {
-                Bitmap bitmap = BitmapFactory.decodeFile( imgFile.getAbsolutePath() );
-                
-                petImagePreview.setImageBitmap( bitmap );
+            // A imagem pode ser um caminho local ou uma URL do Glide
+            if (petToEdit.getImageUrl() != null && !petToEdit.getImageUrl().isEmpty()) {
+                Glide.with(this).load(petToEdit.getImageUrl()).into(petImagePreview);
             }
         }
     }
     
     
-    private void initComponents()
-    {
-        petImagePreview = findViewById( R.id.img_pet_preview);
-        inputName = findViewById( R.id.tf_pet_name);
-        inputDesc = findViewById( R.id.tf_pet_desc);
-        inputData = findViewById( R.id.tf_dt_miss);
-        selectImageButton = findViewById( R.id.btn_select_img);
-        savePetButton = findViewById( R.id.btn_save_pet);
-        
-        boolean viewMode = getIntent().getBooleanExtra( "view_mode", false );
-        
-        if ( viewMode )
-        {
-            savePetButton.setVisibility( View.GONE );
-            selectImageButton.setVisibility( View.GONE );
-            
-            inputName.setEnabled( false );
-            inputDesc.setEnabled( false );
-            inputData.setEnabled( false );
-            
-            ViewGroup.LayoutParams params = petImagePreview.getLayoutParams();
-            params.height = (int)( 475 * getResources().getDisplayMetrics().density + 0.5f );
-            petImagePreview.setLayoutParams( params );
-        }
+    private void initComponents() {
+        petImagePreview = findViewById(R.id.img_pet_preview);
+        inputName = findViewById(R.id.tf_pet_name);
+        inputDesc = findViewById(R.id.tf_pet_desc);
+        inputData = findViewById(R.id.tf_dt_miss);
+        selectImageButton = findViewById(R.id.btn_select_img);
+        savePetButton = findViewById(R.id.btn_save_pet);
+        title = findViewById(R.id.add_pet_title);
         
         auth = FirebaseAuth.getInstance();
         
-        selectImageButton.setOnClickListener( v -> openFileChooser() );
-        savePetButton.setOnClickListener( v -> savePet() );
+        selectImageButton.setOnClickListener(v -> openFileChooser());
+        savePetButton.setOnClickListener(v -> savePet());
         
         inputData.setOnClickListener(v -> {
             Calendar calendar = Calendar.getInstance();
@@ -210,8 +176,7 @@ public class AddPetActivity extends AppCompatActivity {
                         String dtSelected = String.format("%02d/%02d/%04d", selectedDay, selectedMonth + 1, selectedYear);
                         inputData.setText(dtSelected);
                     },
-                    year, month, day
-            );
+                    year, month, day);
             datePickerDialog.show();
         });
     }
