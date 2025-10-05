@@ -39,7 +39,7 @@ android {
 }
 
 dependencies {
-
+    implementation(libs.play.services.auth)
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
@@ -51,6 +51,9 @@ dependencies {
     implementation (libs.android.mail)
     implementation (libs.android.activation)
     implementation(libs.firebase.storage)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
     annotationProcessor (libs.compiler)
     implementation (libs.androidx.cardview)
     testImplementation(libs.junit)
