@@ -156,7 +156,6 @@ public class PetDetailActivity extends AppCompatActivity {
     private void reportSighting() {
         String currentUserId = auth.getCurrentUser().getUid();
         
-        // Evita que o próprio dono reporte um avistamento do seu animal
         if (currentUserId.equals(currentPet.getOwnerId())) {
             Toast.makeText(this, "Não pode reportar um avistamento do seu próprio pet.", Toast.LENGTH_SHORT).show();
             return;
@@ -189,10 +188,10 @@ public class PetDetailActivity extends AppCompatActivity {
                                     Log.d(TAG, "Avistamento criado com sucesso no Firestore!");
                                     Toast.makeText(this, "Avistamento reportado com sucesso!", Toast.LENGTH_SHORT).show();
                                     
-                                    sightingList.add(0, newSighting);
-                                    sightingAdapter.notifyItemInserted(0);
-                                    RecyclerView rvSightings = findViewById(R.id.rv_sightings);
-                                    rvSightings.scrollToPosition(0);
+//                                    sightingList.add(0, newSighting);
+//                                    sightingAdapter.notifyItemInserted(0);
+//                                    RecyclerView rvSightings = findViewById(R.id.rv_sightings);
+//                                    rvSightings.scrollToPosition(0);
                                     
                                     EmailService.sendEmail(
                                             currentPet,

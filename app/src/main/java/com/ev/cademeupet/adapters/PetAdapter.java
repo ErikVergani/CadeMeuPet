@@ -88,32 +88,31 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.PetViewHolder> {
                 Glide.with(context).load(pet.getImageUrl()).into(petImageView);
             }
             
-            statusTag.setBackgroundColor(pet.getStatusEnum() == Pet.STATUS.FOUND ? Color.parseColor("#4CAF50") : Color.parseColor("#F44336"));
+            boolean found = pet.getStatusEnum() == Pet.STATUS.MISSING;
+            statusTag.setBackgroundColor( found ?  Color.parseColor("#F44336") : Color.parseColor("#4CAF50") );
             
-            // Mostra os botões corretos dependendo se o utilizador é o dono
-            if (currentUserId != null && currentUserId.equals(pet.getOwnerId())) {
-                ownerActionsContainer.setVisibility(View.VISIBLE);
+            int visibility = found ? View.VISIBLE : View.GONE;
+            
+            if (currentUserId != null && currentUserId.equals(pet.getOwnerId()) ) {
+                ownerActionsContainer.setVisibility( visibility );
                 findButton.setVisibility(View.GONE);
             } else {
                 ownerActionsContainer.setVisibility(View.GONE);
-                findButton.setVisibility(pet.getStatusEnum() == Pet.STATUS.MISSING ? View.VISIBLE : View.GONE);
+                findButton.setVisibility( visibility );
             }
             
-            // Ação de clique para ir aos detalhes
             itemView.setOnClickListener(c -> {
                 Intent intent = new Intent(context, PetDetailActivity.class);
                 intent.putExtra("pet", pet);
                 context.startActivity(intent);
             });
             
-            // Ação do botão "Editar"
             btnEdit.setOnClickListener(v -> {
                 Intent intent = new Intent(context, AddPetActivity.class);
                 intent.putExtra("pet_to_edit", pet);
                 context.startActivity(intent);
             });
             
-            // Ação do botão "Excluir"
             btnDelete.setOnClickListener(v -> showDeleteConfirmationDialog(pet));
         }
         

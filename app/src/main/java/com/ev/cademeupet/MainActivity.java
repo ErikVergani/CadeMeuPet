@@ -111,14 +111,12 @@ public class MainActivity extends AppCompatActivity {
         List<Pet> filteredList = new ArrayList<>(allPets);
         String currentUserId = auth.getCurrentUser().getUid();
         
-        // Filtro "Meus Posts"
         if (myPostsSwitch.isChecked()) {
             filteredList = filteredList.stream()
                     .filter(pet -> currentUserId.equals(pet.getOwnerId()))
                     .collect(Collectors.toList());
         }
         
-        // Filtro de Status
         String selectedStatus = statusSpinner.getSelectedItem().toString();
         if (!selectedStatus.equals("Todos")) {
             filteredList = filteredList.stream()
