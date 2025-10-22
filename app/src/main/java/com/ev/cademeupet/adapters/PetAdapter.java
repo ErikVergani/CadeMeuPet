@@ -1,8 +1,11 @@
 package com.ev.cademeupet.adapters;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,9 +22,14 @@ import com.ev.cademeupet.R;
 import com.ev.cademeupet.activities.AddPetActivity;
 import com.ev.cademeupet.activities.PetDetailActivity;
 import com.ev.cademeupet.models.Pet;
+import com.ev.cademeupet.models.Sighting;
+import com.ev.cademeupet.models.User;
+import com.ev.cademeupet.services.EmailService;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.List;
+import java.util.UUID;
 
 public class PetAdapter extends RecyclerView.Adapter<PetAdapter.PetViewHolder> {
     
@@ -106,7 +114,7 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.PetViewHolder> {
                 intent.putExtra("pet", pet);
                 context.startActivity(intent);
             });
-            
+            findButton.setOnClickListener(v -> reportSightingFromMain(pet));
             btnEdit.setOnClickListener(v -> {
                 Intent intent = new Intent(context, AddPetActivity.class);
                 intent.putExtra("pet_to_edit", pet);
@@ -132,6 +140,57 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.PetViewHolder> {
                         // A lista será atualizada automaticamente pelo snapshot listener na MainActivity
                     })
                     .addOnFailureListener(e -> Toast.makeText(context, "Erro ao excluir.", Toast.LENGTH_SHORT).show());
+        }
+        private void reportSightingFromMain(Pet pet) {
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            
+            if (currentUserId == null) {
+                Toast.makeText(context, "Faça login para reportar um avistamento.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            
+            if (currentUserId.equals(pet.getOwnerId())) {
+                Toast.makeText(context, "Você não pode reportar um avistamento do seu próprio pet.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            
+            db.collection("users").document(currentUserId).get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (!documentSnapshot.exists()) {
+                            Toast.makeText(context, "Complete seu perfil para reportar um avistamento.", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                        
+                        User reporter = documentSnapshot.toObject(User.class);
+                        if (reporter != null && reporter.getFullName() != null && !reporter.getFullName().isEmpty()) {
+                            Sighting newSighting = new Sighting();
+                            newSighting.setId(UUID.randomUUID().toString());
+                            newSighting.setPetId(pet.getId());
+                            newSighting.setReporterId(currentUserId);
+                            newSighting.setReporterName(reporter.getFullName());
+                            newSighting.setSightingDate(Timestamp.now());
+                            newSighting.setLocation(reporter.getFullAddress() != null ? reporter.getFullAddress() : "Localização não informada");
+                            newSighting.setMessage("Avistado perto do meu endereço.");
+                            newSighting.setStatus("Pendente");
+                            
+                            db.collection("sightings").document(newSighting.getId()).set(newSighting)
+                                    .addOnSuccessListener(aVoid -> {
+                                        Log.d(TAG, "Avistamento criado com sucesso no Firestore!");
+                                        Toast.makeText(context, "Avistamento reportado com sucesso!", Toast.LENGTH_SHORT).show();
+                                        EmailService.sendEmail(pet, reporter);
+                                    })
+                                    .addOnFailureListener(err -> {
+                                        Log.e(TAG, "Erro ao guardar o avistamento no Firestore.", err);
+                                        Toast.makeText(context, "Erro ao reportar avistamento.", Toast.LENGTH_SHORT).show();
+                                    });
+                        } else {
+                            Toast.makeText(context, "Seu perfil está incompleto. Por favor, atualize seus dados.", Toast.LENGTH_LONG).show();
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e(TAG, "Falha ao buscar os dados do utilizador.", e);
+                        Toast.makeText(context, "Erro ao buscar seus dados. Tente novamente.", Toast.LENGTH_SHORT).show();
+                    });
         }
     }
 }

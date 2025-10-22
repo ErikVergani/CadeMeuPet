@@ -86,17 +86,16 @@ public class SightingAdapter extends RecyclerView.Adapter<SightingAdapter.Sighti
         }
         
         private void updateSightingStatus(Sighting sighting, String newStatus) {
+            if ("Confirmado".equals(newStatus)) {
+                FirebaseFirestore.getInstance().collection("pets").document(sighting.getPetId())
+                        .update("status", "Encontrado")
+                        .addOnFailureListener(e -> Toast.makeText(context, "Erro ao atualizar status do pet.", Toast.LENGTH_SHORT).show());
+            }
+            
             FirebaseFirestore.getInstance().collection("sightings").document(sighting.getId())
                     .update("status", newStatus)
-                    .addOnSuccessListener(aVoid -> {
-                        Toast.makeText(context, "Status do avistamento atualizado!", Toast.LENGTH_SHORT).show();
-                        if("Confirmado".equals(newStatus)){
-                            // Opcional: Atualizar o status do Pet para "Encontrado"
-                            FirebaseFirestore.getInstance().collection("pets").document(sighting.getPetId())
-                                    .update("status", "Encontrado");
-                        }
-                    })
-                    .addOnFailureListener(e -> Toast.makeText(context, "Erro ao atualizar status.", Toast.LENGTH_SHORT).show());
+                    .addOnSuccessListener(aVoid -> Toast.makeText(context, "Status do avistamento atualizado!", Toast.LENGTH_SHORT).show())
+                    .addOnFailureListener(e -> Toast.makeText(context, "Erro ao atualizar status do avistamento.", Toast.LENGTH_SHORT).show());
         }
     }
 }

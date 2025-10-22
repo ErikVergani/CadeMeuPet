@@ -23,7 +23,9 @@ import com.ev.cademeupet.models.User;
 import com.ev.cademeupet.services.EmailService;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +43,8 @@ public class PetDetailActivity extends AppCompatActivity {
     private Button btnReportSighting, btnEditPet, btnDeletePet;
     private LinearLayout ownerActionsContainer;
     
+    private ListenerRegistration petListener;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,43 +53,100 @@ public class PetDetailActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
         
-        currentPet = (Pet) getIntent().getSerializableExtra("pet");
+        Pet petFromIntent = (Pet) getIntent().getSerializableExtra("pet");
         
-        if (currentPet == null) {
+        if (petFromIntent == null || petFromIntent.getId() == null) {
             Toast.makeText(this, "Erro ao carregar detalhes do pet.", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
         
-        setupPetDetails();
         setupRecyclerView();
-        loadSightings();
-        setupButtons();
+        // Inicia o listener para o pet e carrega os avistamentos
+        listenToPetUpdates(petFromIntent.getId());
+        loadSightings(petFromIntent.getId());
     }
     
-    private void setupButtons() {
+    /**
+     * Anexa um "ouvinte" ao documento do pet no Firestore.
+     * Este método será notificado sobre qualquer alteração nos dados do pet.
+     */
+    private void listenToPetUpdates(String petId) {
+        final DocumentReference petRef = db.collection("pets").document(petId);
+        petListener = petRef.addSnapshotListener(this, (snapshot, e) -> {
+            if (e != null) {
+                Log.w(TAG, "Falha ao ouvir as atualizações do pet.", e);
+                return;
+            }
+            
+            if (snapshot != null && snapshot.exists()) {
+                // Converte o snapshot para um objeto Pet
+                currentPet = snapshot.toObject(Pet.class);
+                if (currentPet != null) {
+                    // Atualiza toda a interface com os novos dados
+                    updateUI();
+                }
+            } else {
+                // O pet foi deletado, então a tela é fechada
+                Toast.makeText(this, "Esta publicação não existe mais.", Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        });
+    }
+    
+    /**
+     * Método central que atualiza todos os componentes da tela
+     * com base no estado mais recente do objeto currentPet.
+     */
+    private void updateUI() {
+        // Popula os detalhes do pet
+        TextView petName = findViewById(R.id.detail_pet_name);
+        TextView petDesc = findViewById(R.id.detail_pet_desc);
+        TextView petDate = findViewById(R.id.detail_pet_date);
+        ImageView petImage = findViewById(R.id.detail_pet_image);
+        
+        petName.setText(currentPet.getName());
+        petDesc.setText(currentPet.getDesc());
+        petDate.setText("Desaparecido em: " + currentPet.getDtMissing());
+        Glide.with(this).load(currentPet.getImageUrl()).into(petImage);
+        
+        // Lógica para mostrar/esconder botões
         btnReportSighting = findViewById(R.id.btn_report_sighting);
         ownerActionsContainer = findViewById(R.id.owner_actions_container);
         btnEditPet = findViewById(R.id.btn_edit_pet);
         btnDeletePet = findViewById(R.id.btn_delete_pet);
         
         String currentUserId = auth.getCurrentUser().getUid();
+        boolean isOwner = currentUserId != null && currentUserId.equals(currentPet.getOwnerId());
+        boolean isFound = "Encontrado".equalsIgnoreCase(currentPet.getStatus());
         
-        if (currentUserId != null && currentUserId.equals(currentPet.getOwnerId())) {
-            btnReportSighting.setVisibility(View.GONE);
-            ownerActionsContainer.setVisibility(View.VISIBLE);
-        } else {
-            btnReportSighting.setVisibility(View.VISIBLE);
-            ownerActionsContainer.setVisibility(View.GONE);
-        }
+        // Ações do dono (Editar/Excluir) só aparecem se for o dono E o pet não foi encontrado
+        ownerActionsContainer.setVisibility(isOwner && !isFound ? View.VISIBLE : View.GONE);
+        btnReportSighting.setVisibility(isOwner ? View.GONE : View.VISIBLE);
         
-        if (currentPet.getStatus().equalsIgnoreCase("Encontrado")) {
+        // Desabilita o botão de reportar se o pet já foi encontrado
+        if (isFound) {
             btnReportSighting.setEnabled(false);
             btnReportSighting.setBackgroundColor(Color.rgb(128, 128, 128));
+        } else {
+            btnReportSighting.setEnabled(true);
+            // Certifique-se de que a cor original seja restaurada
+            btnReportSighting.setBackgroundColor(Color.parseColor("#6200EE"));
         }
+        
+        // Configura os cliques dos botões
         btnReportSighting.setOnClickListener(v -> reportSighting());
         btnEditPet.setOnClickListener(v -> editPet());
         btnDeletePet.setOnClickListener(v -> showDeleteConfirmationDialog());
+    }
+    
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // É fundamental remover o listener para evitar vazamentos de memória
+        if (petListener != null) {
+            petListener.remove();
+        }
     }
     
     private void editPet() {
@@ -105,55 +166,42 @@ public class PetDetailActivity extends AppCompatActivity {
     
     private void deletePet() {
         db.collection("pets").document(currentPet.getId()).delete()
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(this, "Publicação excluída com sucesso.", Toast.LENGTH_SHORT).show();
-                    finish();
-                })
                 .addOnFailureListener(e -> Toast.makeText(this, "Erro ao excluir a publicação.", Toast.LENGTH_SHORT).show());
-    }
-    
-    
-    private void setupPetDetails() {
-        TextView petName = findViewById(R.id.detail_pet_name);
-        TextView petDesc = findViewById(R.id.detail_pet_desc);
-        TextView petDate = findViewById(R.id.detail_pet_date);
-        ImageView petImage = findViewById(R.id.detail_pet_image);
-        
-        petName.setText(currentPet.getName());
-        petDesc.setText(currentPet.getDesc());
-        petDate.setText("Desaparecido em: " + currentPet.getDtMissing());
-        
-        Glide.with(this).load(currentPet.getImageUrl()).into(petImage);
     }
     
     private void setupRecyclerView() {
         RecyclerView rvSightings = findViewById(R.id.rv_sightings);
         rvSightings.setLayoutManager(new LinearLayoutManager(this));
-        sightingAdapter = new SightingAdapter(sightingList, currentPet.getOwnerId(), auth.getCurrentUser().getUid(), this);
-        rvSightings.setAdapter(sightingAdapter);
+        // O adapter será totalmente configurado quando os dados do pet chegarem
     }
     
-    private void loadSightings() {
-        Log.d(TAG, "A carregar avistamentos para o pet ID: " + currentPet.getId());
+    private void loadSightings(String petId) {
         db.collection("sightings")
-                .whereEqualTo("petId", currentPet.getId())
+                .whereEqualTo("petId", petId)
                 .orderBy("sightingDate", Query.Direction.DESCENDING)
                 .addSnapshotListener((snapshots, e) -> {
                     if (e != null) {
                         Log.e(TAG, "Erro ao carregar avistamentos.", e);
-                        Toast.makeText(this, "Erro ao carregar avistamentos.", Toast.LENGTH_SHORT).show();
                         return;
                     }
                     sightingList.clear();
                     if (snapshots != null) {
                         sightingList.addAll(snapshots.toObjects(Sighting.class));
-                        Log.d(TAG, "Foram encontrados " + sightingList.size() + " avistamentos.");
                     }
-                    sightingAdapter.notifyDataSetChanged();
+                    
+                    // Inicializa o adapter se for nulo, senão apenas notifica a mudança
+                    if (sightingAdapter == null && currentPet != null) {
+                        RecyclerView rvSightings = findViewById(R.id.rv_sightings);
+                        sightingAdapter = new SightingAdapter(sightingList, currentPet.getOwnerId(), auth.getCurrentUser().getUid(), this);
+                        rvSightings.setAdapter(sightingAdapter);
+                    } else if (sightingAdapter != null) {
+                        sightingAdapter.notifyDataSetChanged();
+                    }
                 });
     }
     
     private void reportSighting() {
+        //... (O restante do seu código permanece igual)
         String currentUserId = auth.getCurrentUser().getUid();
         
         if (currentUserId.equals(currentPet.getOwnerId())) {
@@ -187,11 +235,6 @@ public class PetDetailActivity extends AppCompatActivity {
                                 .addOnSuccessListener(aVoid -> {
                                     Log.d(TAG, "Avistamento criado com sucesso no Firestore!");
                                     Toast.makeText(this, "Avistamento reportado com sucesso!", Toast.LENGTH_SHORT).show();
-                                    
-//                                    sightingList.add(0, newSighting);
-//                                    sightingAdapter.notifyItemInserted(0);
-//                                    RecyclerView rvSightings = findViewById(R.id.rv_sightings);
-//                                    rvSightings.scrollToPosition(0);
                                     
                                     EmailService.sendEmail(
                                             currentPet,
