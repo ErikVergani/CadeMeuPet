@@ -2,11 +2,25 @@
         xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
             android:id="@+id/menu_editar_perfil"
-            android:title="Editar Perfil"
+            android:title="@string/menu_edit_profile"
             android:icon="@android:drawable/ic_menu_manage"
             app:showAsAction="ifRoom" />
+            
+    <item
+        android:id="@+id/menu_language"
+        android:title="@string/menu_language"
+        app:showAsAction="never">
+        <menu>
+            <item
+                android:id="@+id/lang_pt"
+                android:title="Português" />
+            <item
+                android:id="@+id/lang_en"
+                android:title="English" />
+        </menu>
+    </item>
     <item
             android:id="@+id/menu_sair"
-            android:title="Sair"
+            android:title="@string/btn_logoff"
             app:showAsAction="never" />
 </menu>

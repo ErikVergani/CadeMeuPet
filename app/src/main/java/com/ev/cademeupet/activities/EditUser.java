@@ -68,10 +68,10 @@ public class EditUser extends AppCompatActivity
                 .set( updatedData, SetOptions.merge() )
                 .addOnSuccessListener( v -> 
                 {
-                    Toast.makeText(this, "Perfil atualizado com sucesso", Toast.LENGTH_SHORT ).show();
+                    Toast.makeText(this, getString( R.string.success_profile_update ), Toast.LENGTH_SHORT ).show();
                     finish();
                 } )
-                .addOnFailureListener(e -> Toast.makeText(this, "Erro ao atualizar: " + e.getMessage(), Toast.LENGTH_SHORT).show() );
+                .addOnFailureListener(e -> Toast.makeText(this, getString( R.string.error_profile_update ) + " " + e.getMessage(), Toast.LENGTH_SHORT).show() );
     }
     
     private void initComponents()

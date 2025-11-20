@@ -18,7 +18,7 @@
                 android:id="@+id/add_pet_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Cadastrar Pet Desaparecido"
+                android:text="@string/title_add_pet"
                 android:textSize="22sp"
                 android:textStyle="bold"
                 android:textColor="@android:color/white"
@@ -38,14 +38,14 @@
                 android:id="@+id/btn_select_img"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Selecionar Imagem"
+                android:text="@string/btn_select_image"
                 android:textColor="@android:color/white"
                 android:backgroundTint="#333333"
                 android:layout_marginBottom="20dp" />
 
         <EditText
                 android:id="@+id/tf_pet_name"
-                android:hint="Nome do Animal"
+                android:hint="@string/hint_pet_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="#222222"
@@ -56,7 +56,7 @@
 
         <EditText
                 android:id="@+id/tf_pet_desc"
-                android:hint="Descrição"
+                android:hint="@string/hint_pet_desc"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:minLines="3"
@@ -69,7 +69,7 @@
 
         <EditText
                 android:id="@+id/tf_dt_miss"
-                android:hint="Data de desaparecimento"
+                android:hint="@string/hint_pet_date"
                 android:inputType="none"
                 android:focusable="false"
                 android:layout_width="match_parent"
@@ -84,7 +84,7 @@
                 android:id="@+id/btn_save_pet"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Salvar Pet"
+                android:text="@string/btn_save_pet"
                 android:textColor="@android:color/white"
                 android:backgroundTint="#6200EE" />
 

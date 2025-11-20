@@ -44,7 +44,7 @@ public class RegisterActivity extends AppCompatActivity
         
         if ( userEmail.isEmpty() || userPassword.isEmpty() )
         {
-            Toast.makeText( this, "Preencha todos os campos", Toast.LENGTH_SHORT ).show();
+            Toast.makeText( this, getString( R.string.error_fill_fields ), Toast.LENGTH_SHORT ).show();
             return;
         }
         
@@ -53,13 +53,13 @@ public class RegisterActivity extends AppCompatActivity
              {
                 if ( task.isSuccessful() ) 
                 {
-                    Toast.makeText(this, "Usuário cadastrado com sucesso", Toast.LENGTH_SHORT ).show();
+                    Toast.makeText(this, getString(R.string.success_register), Toast.LENGTH_SHORT ).show();
                     finish();
                 }
                 
                 else
                 {
-                    Toast.makeText(this, "Erro ao cadastrar", Toast.LENGTH_SHORT ).show();
+                    Toast.makeText(this, getString(R.string.error_register), Toast.LENGTH_SHORT ).show();
                 }
             });
     }

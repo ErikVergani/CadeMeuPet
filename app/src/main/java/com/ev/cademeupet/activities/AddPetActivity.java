@@ -3,13 +3,9 @@ package com.ev.cademeupet.activities;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -75,26 +71,25 @@ public class AddPetActivity extends AppCompatActivity {
         String data = inputData.getText().toString().trim();
         
         if (name.isEmpty() || desc.isEmpty() || data.isEmpty()) {
-            Toast.makeText(this, "Preencha todos os campos", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.error_fill_fields), Toast.LENGTH_SHORT).show();
             return;
         }
         
         // Se for um novo pet, a imagem é obrigatória
         if (petToEdit == null && imageUri == null) {
-            Toast.makeText(this, "Selecione uma imagem para o pet", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.error_select_image), Toast.LENGTH_SHORT).show();
             return;
         }
         
         String petId = (petToEdit != null) ? petToEdit.getId() : UUID.randomUUID().toString();
         String ownerId = auth.getCurrentUser().getUid();
         String ownerEmail = auth.getCurrentUser().getEmail();
-        String status = (petToEdit != null) ? petToEdit.getStatus() : Pet.STATUS.MISSING.toString();
-        String imageUrl = (petToEdit != null) ? petToEdit.getImageUrl() : ""; // Será atualizado se nova imagem for selecionada
+        String status = (petToEdit != null) ? petToEdit.getStatus() : Pet.STATUS.MISSING.name();
+        String imageUrl = (petToEdit != null) ? petToEdit.getImageUrl() : "";
         
         Pet pet = new Pet(petId, name, desc, data, imageUrl, status, ownerId, ownerEmail);
         
         if (imageUri != null) {
-            // Lógica de salvar imagem (a mesma que você já tem)
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
                 File imageFile = saveLocalImage(bitmap);
@@ -104,19 +99,18 @@ public class AddPetActivity extends AppCompatActivity {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-                Toast.makeText(this, "Erro ao processar imagem", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.error_select_image), Toast.LENGTH_SHORT).show();
             }
         } else {
-            // Nenhuma nova imagem selecionada, apenas salvar as outras informações
             savePetToFirestore(pet);
         }
     }
     
     private void savePetToFirestore(Pet pet) {
         PetService.savePet(pet, o -> {
-            Toast.makeText(this, "Pet salvo com sucesso", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.success_pet_saved), Toast.LENGTH_SHORT).show();
             finish();
-        }, e -> Toast.makeText(this, "Erro ao salvar pet", Toast.LENGTH_SHORT).show());
+        }, e -> Toast.makeText(this, getString(R.string.error_pet_save), Toast.LENGTH_SHORT).show());
     }
     
     private File saveLocalImage(Bitmap bitmap) {
@@ -137,12 +131,11 @@ public class AddPetActivity extends AppCompatActivity {
         petToEdit = (Pet) getIntent().getSerializableExtra("pet_to_edit");
         
         if (petToEdit != null) {
-            title.setText("Editar Informações do Pet");
+            title.setText(getString(R.string.title_edit_pet_info));
             inputName.setText(petToEdit.getName());
             inputDesc.setText(petToEdit.getDesc());
             inputData.setText(petToEdit.getDtMissing());
             
-            // A imagem pode ser um caminho local ou uma URL do Glide
             if (petToEdit.getImageUrl() != null && !petToEdit.getImageUrl().isEmpty()) {
                 Glide.with(this).load(petToEdit.getImageUrl()).into(petImagePreview);
             }

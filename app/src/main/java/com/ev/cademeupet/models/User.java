@@ -12,10 +12,11 @@ public class User
     private String fullName;
     private String phone;
     private String email;
+    private String language;
     
     public User(){};
     
-    public User(String street, String homeNumber, String district, String city, String UF, String fullName, String phone, String email) {
+    public User(String street, String homeNumber, String district, String city, String UF, String fullName, String phone, String email, String language) {
         this.street = street;
         this.homeNumber = homeNumber;
         this.district = district;
@@ -24,6 +25,7 @@ public class User
         this.fullName = fullName;
         this.phone = phone;
         this.email = email;
+        this.language = language;
     }
     
     public String getEmail() {
@@ -93,5 +95,13 @@ public class User
     public String getFullAddress()
     {
         return street + "," + homeNumber + "," + district + "," + city + "," + UF;
+    }
+    
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
     }
 }

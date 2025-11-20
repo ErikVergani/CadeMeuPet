@@ -78,7 +78,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="24dp"
                     android:layout_marginBottom="8dp"
-                    android:text="Avistamentos Reportados"
+                    android:text="@string/label_sightings"
                     android:textColor="@android:color/white"
                     android:textSize="20sp"
                     android:textStyle="bold" />
@@ -99,7 +99,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
             android:backgroundTint="#6200EE"
-            android:text="Eu vi este pet!"
+            android:text="@string/btn_report_seen"
             android:textColor="@android:color/white"
             android:textStyle="bold" />
 
@@ -116,7 +116,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Editar"
+                android:text="@string/btn_edit"
                 android:backgroundTint="#FF9800"
                 android:textColor="@android:color/white"
                 android:layout_marginEnd="8dp"/>
@@ -126,7 +126,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Excluir"
+                android:text="@string/btn_delete"
                 android:backgroundTint="#F44336"
                 android:textColor="@android:color/white"/>
     </LinearLayout>

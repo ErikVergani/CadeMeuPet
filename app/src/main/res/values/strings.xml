@@ -1,10 +1,96 @@
 <resources>
-    <string name="app_name">CadeMeuPet</string>
+    <string name="default_web_client_id" translatable="false">foo</string>
+    <string name="app_name">Cadê Meu Pet?</string>
+    
+    
     <string-array name="filtros_status">
         <item>Todos</item>
         <item>Desaparecido</item>
         <item>Encontrado</item>
     </string-array>
 
-    <string name="default_web_client_id" translatable="false">SEU_WEB_CLIENT_ID_AQUI</string>
+<string name="menu_edit_profile">Editar Perfil</string>
+    <string name="menu_language">Idioma / Language</string>
+    <string name="menu_logout">Sair</string>
+
+    <string name="title_create_account">Crie sua conta</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_password">Senha</string>
+    <string name="btn_login">Entrar</string>
+    <string name="btn_logoff">Sair</string>
+    <string name="btn_register">Registrar</string>
+    <string name="btn_login_google">Entrar com Google</string>
+    <string name="btn_register_action">Cadastrar</string>
+    <string name="error_fill_fields">Preencha todos os campos</string>
+    <string name="error_login">Erro ao fazer login</string>
+    <string name="error_auth">Falha na autenticação</string>
+    <string name="error_google_login">Falha no login com o Google</string>
+    <string name="success_register">Usuário cadastrado com sucesso</string>
+    <string name="error_register">Erro ao cadastrar</string>
+
+    <string name="filter_label">Filtrar Status:</string>
+    <string name="switch_my_posts">Meus Posts</string>
+    <string name="desc_add_pet">Adicionar Pet</string>
+    <string name="text_login_required">Faça login para reportar um avistamento.</string>
+    <string name="text_cant_report_own">Você não pode reportar um avistamento do seu próprio pet.</string>
+    <string name="text_complete_profile">Complete seu perfil para reportar um avistamento.</string>
+
+    <string name="title_add_pet">Cadastrar Pet Desaparecido</string>
+    <string name="title_edit_pet_info">Editar Informações do Pet</string>
+    <string name="btn_select_image">Selecionar Imagem</string>
+    <string name="hint_pet_name">Nome do Animal</string>
+    <string name="hint_pet_desc">Descrição</string>
+    <string name="hint_pet_date">Data de desaparecimento</string>
+    <string name="btn_save_pet">Salvar Pet</string>
+    <string name="error_select_image">Selecione uma imagem para o pet</string>
+    <string name="error_image_processing">Erro ao processar imagem</string>
+    <string name="success_pet_saved">Pet salvo com sucesso</string>
+    <string name="error_pet_save">Erro ao salvar pet</string>
+
+    <string name="title_edit_profile">Editar Perfil</string>
+    <string name="hint_fullname">Nome completo</string>
+    <string name="hint_phone">Telefone</string>
+    <string name="label_address">Endereço</string>
+    <string name="hint_street">Rua</string>
+    <string name="hint_number">Número</string>
+    <string name="hint_district">Bairro</string>
+    <string name="hint_city">Cidade</string>
+    <string name="hint_uf">UF</string>
+    <string name="btn_save">Salvar</string>
+    <string name="success_profile_update">Perfil atualizado com sucesso</string>
+    <string name="error_profile_update">Erro ao atualizar: </string>
+
+    <string name="status_missing">Desaparecido</string>
+    <string name="status_found">Encontrado</string>
+    <string name="label_missing_at">Desaparecido em: </string>
+    <string name="btn_found_pet">Encontrei seu pet</string>
+    <string name="btn_edit">Editar</string>
+    <string name="btn_delete">Excluir</string>
+    <string name="btn_report_seen">Eu vi este pet!</string>
+    <string name="label_sightings">Avistamentos Reportados</string>
+    <string name="dialog_delete_title">Excluir Publicação</string>
+    <string name="dialog_delete_msg">Tem a certeza de que deseja excluir esta publicação?</string>
+    <string name="dialog_yes">Sim, Excluir</string>
+    <string name="dialog_cancel">Cancelar</string>
+    <string name="msg_deleted">Publicação excluída.</string>
+    <string name="error_delete">Erro ao excluir.</string>
+    <string name="error_load_details">Erro ao carregar detalhes do pet.</string>
+
+    <string name="label_reported_by">Reportado por: </string>
+    <string name="label_date">Data: </string>
+    <string name="label_location">Local: </string>
+    <string name="label_status">Status: </string>
+    <string name="status_pending">Pendente</string>
+    <string name="btn_confirm">Confirmar</string>
+    <string name="btn_reject">Rejeitar</string>
+    <string name="msg_status_updated">Status do avistamento atualizado!</string>
+    <string name="sighting_created">Avistamento reportado com sucesso!</string>
+    
+    <string name="alert_missing_publi">Esta publicação não existe mais.</string>
+    <string name="error_report_sighting">Erro ao reportar avistamento.</string>
+    <string name="alert_low_profile">Parece que o seu perfil está incompleto. Por favor, atualize os seus dados.</string>
+    <string name="error_load_profile">Erro ao buscar os seus dados. Tente novamente.</string>
+    
+    <string name="email_subject">Boas notícias! Seu pet pode ter sido encontrado!</string>
+    <string name="email_body">Olá!\n\nO usuário %1$s viu o seu pet \"%2$s\" e clicou em \'Encontrei seu pet\' no aplicativo Cadê Meu Pet!\n\nVeja onde encontrar essa pessoa:\n%3$s\nEntre em contato com o usuário através do número: %4$s\n\nEsperamos que vocês se reencontrem em breve! 🐾❤️</string>
 </resources>

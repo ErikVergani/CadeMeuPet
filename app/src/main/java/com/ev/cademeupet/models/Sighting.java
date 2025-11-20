@@ -1,21 +1,28 @@
 package com.ev.cademeupet.models;
 
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.Exclude;
+
 import java.io.Serializable;
 
 public class Sighting implements Serializable {
     
+    public enum STATUS {
+        PENDING,
+        CONFIRMED,
+        REJECTED;
+    }
+    
     private String id;
     private String petId;
     private String reporterId;
-    private String reporterName; // Adicionado para facilitar a exibição
+    private String reporterName;
     private Timestamp sightingDate;
-    private String location; // Pode ser um endereço ou coordenadas
+    private String location;
     private String message;
-    private String status; // "Pendente", "Confirmado", "Rejeitado"
+    private String status; 
     
     public Sighting() {
-        // Construtor vazio necessário para o Firestore
     }
     
     // Getters e Setters
@@ -42,4 +49,24 @@ public class Sighting implements Serializable {
     
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+    
+    @Exclude
+    public STATUS getStatusEnum() {
+        if (status == null) return STATUS.PENDING;
+
+        if (status.equalsIgnoreCase("Pendente")) return STATUS.PENDING;
+        if (status.equalsIgnoreCase("Confirmado")) return STATUS.CONFIRMED;
+        if (status.equalsIgnoreCase("Rejeitado")) return STATUS.REJECTED;
+
+        try {
+            return STATUS.valueOf(status.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return STATUS.PENDING;
+        }
+    }
+
+    @Exclude
+    public void setStatusEnum(STATUS statusEnum) {
+        this.status = statusEnum.name();
+    }
 }

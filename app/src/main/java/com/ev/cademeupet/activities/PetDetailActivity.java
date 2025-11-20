@@ -56,13 +56,12 @@ public class PetDetailActivity extends AppCompatActivity {
         Pet petFromIntent = (Pet) getIntent().getSerializableExtra("pet");
         
         if (petFromIntent == null || petFromIntent.getId() == null) {
-            Toast.makeText(this, "Erro ao carregar detalhes do pet.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.error_load_details), Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
         
         setupRecyclerView();
-        // Inicia o listener para o pet e carrega os avistamentos
         listenToPetUpdates(petFromIntent.getId());
         loadSightings(petFromIntent.getId());
     }
@@ -80,15 +79,12 @@ public class PetDetailActivity extends AppCompatActivity {
             }
             
             if (snapshot != null && snapshot.exists()) {
-                // Converte o snapshot para um objeto Pet
                 currentPet = snapshot.toObject(Pet.class);
                 if (currentPet != null) {
-                    // Atualiza toda a interface com os novos dados
                     updateUI();
                 }
             } else {
-                // O pet foi deletado, então a tela é fechada
-                Toast.makeText(this, "Esta publicação não existe mais.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.alert_missing_publi), Toast.LENGTH_SHORT).show();
                 finish();
             }
         });
@@ -99,7 +95,6 @@ public class PetDetailActivity extends AppCompatActivity {
      * com base no estado mais recente do objeto currentPet.
      */
     private void updateUI() {
-        // Popula os detalhes do pet
         TextView petName = findViewById(R.id.detail_pet_name);
         TextView petDesc = findViewById(R.id.detail_pet_desc);
         TextView petDate = findViewById(R.id.detail_pet_date);
@@ -107,10 +102,9 @@ public class PetDetailActivity extends AppCompatActivity {
         
         petName.setText(currentPet.getName());
         petDesc.setText(currentPet.getDesc());
-        petDate.setText("Desaparecido em: " + currentPet.getDtMissing());
+        petDate.setText(getString(R.string.label_missing_at) + currentPet.getDtMissing());
         Glide.with(this).load(currentPet.getImageUrl()).into(petImage);
         
-        // Lógica para mostrar/esconder botões
         btnReportSighting = findViewById(R.id.btn_report_sighting);
         ownerActionsContainer = findViewById(R.id.owner_actions_container);
         btnEditPet = findViewById(R.id.btn_edit_pet);
@@ -118,23 +112,19 @@ public class PetDetailActivity extends AppCompatActivity {
         
         String currentUserId = auth.getCurrentUser().getUid();
         boolean isOwner = currentUserId != null && currentUserId.equals(currentPet.getOwnerId());
-        boolean isFound = "Encontrado".equalsIgnoreCase(currentPet.getStatus());
+        boolean isFound = currentPet.getStatusEnum() == Pet.STATUS.FOUND;
         
-        // Ações do dono (Editar/Excluir) só aparecem se for o dono E o pet não foi encontrado
         ownerActionsContainer.setVisibility(isOwner && !isFound ? View.VISIBLE : View.GONE);
         btnReportSighting.setVisibility(isOwner ? View.GONE : View.VISIBLE);
         
-        // Desabilita o botão de reportar se o pet já foi encontrado
         if (isFound) {
             btnReportSighting.setEnabled(false);
             btnReportSighting.setBackgroundColor(Color.rgb(128, 128, 128));
         } else {
             btnReportSighting.setEnabled(true);
-            // Certifique-se de que a cor original seja restaurada
             btnReportSighting.setBackgroundColor(Color.parseColor("#6200EE"));
         }
         
-        // Configura os cliques dos botões
         btnReportSighting.setOnClickListener(v -> reportSighting());
         btnEditPet.setOnClickListener(v -> editPet());
         btnDeletePet.setOnClickListener(v -> showDeleteConfirmationDialog());
@@ -143,7 +133,6 @@ public class PetDetailActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // É fundamental remover o listener para evitar vazamentos de memória
         if (petListener != null) {
             petListener.remove();
         }
@@ -157,22 +146,21 @@ public class PetDetailActivity extends AppCompatActivity {
     
     private void showDeleteConfirmationDialog() {
         new AlertDialog.Builder(this)
-                .setTitle("Excluir Publicação")
-                .setMessage("Tem a certeza de que deseja excluir esta publicação?")
-                .setPositiveButton("Sim, Excluir", (dialog, which) -> deletePet())
-                .setNegativeButton("Cancelar", null)
+                .setTitle(getString(R.string.dialog_delete_title))
+                .setMessage(getString(R.string.dialog_delete_msg))
+                .setPositiveButton(getString(R.string.dialog_yes), (dialog, which) -> deletePet())
+                .setNegativeButton(getString(R.string.dialog_cancel), null)
                 .show();
     }
     
     private void deletePet() {
         db.collection("pets").document(currentPet.getId()).delete()
-                .addOnFailureListener(e -> Toast.makeText(this, "Erro ao excluir a publicação.", Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> Toast.makeText(this, getString(R.string.error_delete), Toast.LENGTH_SHORT).show());
     }
     
     private void setupRecyclerView() {
         RecyclerView rvSightings = findViewById(R.id.rv_sightings);
         rvSightings.setLayoutManager(new LinearLayoutManager(this));
-        // O adapter será totalmente configurado quando os dados do pet chegarem
     }
     
     private void loadSightings(String petId) {
@@ -189,7 +177,6 @@ public class PetDetailActivity extends AppCompatActivity {
                         sightingList.addAll(snapshots.toObjects(Sighting.class));
                     }
                     
-                    // Inicializa o adapter se for nulo, senão apenas notifica a mudança
                     if (sightingAdapter == null && currentPet != null) {
                         RecyclerView rvSightings = findViewById(R.id.rv_sightings);
                         sightingAdapter = new SightingAdapter(sightingList, currentPet.getOwnerId(), auth.getCurrentUser().getUid(), this);
@@ -201,11 +188,10 @@ public class PetDetailActivity extends AppCompatActivity {
     }
     
     private void reportSighting() {
-        //... (O restante do seu código permanece igual)
         String currentUserId = auth.getCurrentUser().getUid();
         
         if (currentUserId.equals(currentPet.getOwnerId())) {
-            Toast.makeText(this, "Não pode reportar um avistamento do seu próprio pet.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.text_cant_report_own), Toast.LENGTH_SHORT).show();
             return;
         }
         
@@ -214,7 +200,7 @@ public class PetDetailActivity extends AppCompatActivity {
                 .addOnSuccessListener(documentSnapshot -> {
                     if (!documentSnapshot.exists()) {
                         Log.w(TAG, "O documento do utilizador não existe. O perfil pode não estar completo.");
-                        Toast.makeText(this, "Complete o seu perfil antes de reportar um avistamento.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, getString(R.string.text_complete_profile), Toast.LENGTH_LONG).show();
                         return;
                     }
                     
@@ -229,29 +215,29 @@ public class PetDetailActivity extends AppCompatActivity {
                         newSighting.setSightingDate(Timestamp.now());
                         newSighting.setLocation(reporter.getFullAddress() != null ? reporter.getFullAddress() : "Localização não informada");
                         newSighting.setMessage("Avistado perto do meu endereço.");
-                        newSighting.setStatus("Pendente");
+                        newSighting.setStatusEnum(Sighting.STATUS.PENDING);
                         
                         db.collection("sightings").document(newSighting.getId()).set(newSighting)
                                 .addOnSuccessListener(aVoid -> {
                                     Log.d(TAG, "Avistamento criado com sucesso no Firestore!");
-                                    Toast.makeText(this, "Avistamento reportado com sucesso!", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(this, getString(R.string.sighting_created), Toast.LENGTH_SHORT).show();
                                     
-                                    EmailService.sendEmail(
+                                    EmailService.sendEmail( this,
                                             currentPet,
                                             documentSnapshot.toObject(User.class));
                                 })
                                 .addOnFailureListener(err -> {
                                     Log.e(TAG, "Erro ao guardar o avistamento no Firestore.", err);
-                                    Toast.makeText(this, "Erro ao reportar avistamento.", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(this, getString(R.string.error_report_sighting), Toast.LENGTH_SHORT).show();
                                 });
                     } else {
                         Log.w(TAG, "Falha ao converter o documento do utilizador ou o nome está vazio.");
-                        Toast.makeText(this, "Parece que o seu perfil está incompleto. Por favor, atualize os seus dados.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, getString(R.string.alert_low_profile), Toast.LENGTH_LONG).show();
                     }
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Falha ao buscar os dados do utilizador.", e);
-                    Toast.makeText(this, "Erro ao buscar os seus dados. Tente novamente.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, getString(R.string.error_load_profile), Toast.LENGTH_SHORT).show();
                 });
     }
 }

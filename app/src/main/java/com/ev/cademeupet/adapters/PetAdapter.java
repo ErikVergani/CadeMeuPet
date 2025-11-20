@@ -89,8 +89,22 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.PetViewHolder> {
         
         void bind(final Pet pet) {
             name.setText(pet.getName());
-            data.setText("Desaparecido em: " + pet.getDtMissing());
+            data.setText(context.getString(R.string.label_missing_at) + pet.getDtMissing());
             statusTag.setText(pet.getStatus());
+            
+            if (pet.getImageUrl() != null && !pet.getImageUrl().isEmpty()) {
+                Glide.with(context).load(pet.getImageUrl()).into(petImageView);
+            }
+            
+            Pet.STATUS statusEnum = pet.getStatusEnum();
+            
+            if (statusEnum == Pet.STATUS.FOUND) {
+                statusTag.setText(context.getString(R.string.status_found));
+                statusTag.setBackgroundColor(Color.parseColor("#4CAF50"));
+            } else {
+                statusTag.setText(context.getString(R.string.status_missing));
+                statusTag.setBackgroundColor(Color.parseColor("#F44336"));
+            }
             
             if (pet.getImageUrl() != null && !pet.getImageUrl().isEmpty()) {
                 Glide.with(context).load(pet.getImageUrl()).into(petImageView);
@@ -126,38 +140,38 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.PetViewHolder> {
         
         private void showDeleteConfirmationDialog(Pet pet) {
             new AlertDialog.Builder(context)
-                    .setTitle("Excluir Publicação")
-                    .setMessage("Tem a certeza de que deseja excluir esta publicação?")
-                    .setPositiveButton("Sim, Excluir", (dialog, which) -> deletePet(pet))
-                    .setNegativeButton("Cancelar", null)
+                    .setTitle(context.getString(R.string.dialog_delete_title))
+                    .setMessage(context.getString(R.string.dialog_delete_msg))
+                    .setPositiveButton(context.getString(R.string.dialog_yes), (dialog, which) -> deletePet(pet))
+                    .setNegativeButton(context.getString(R.string.dialog_cancel), null)
                     .show();
         }
         
         private void deletePet(Pet pet) {
             FirebaseFirestore.getInstance().collection("pets").document(pet.getId()).delete()
                     .addOnSuccessListener(aVoid -> {
-                        Toast.makeText(context, "Publicação excluída.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, context.getString(R.string.msg_deleted), Toast.LENGTH_SHORT).show();
                         // A lista será atualizada automaticamente pelo snapshot listener na MainActivity
                     })
-                    .addOnFailureListener(e -> Toast.makeText(context, "Erro ao excluir.", Toast.LENGTH_SHORT).show());
+                    .addOnFailureListener(e -> Toast.makeText(context, context.getString(R.string.error_delete), Toast.LENGTH_SHORT).show());
         }
         private void reportSightingFromMain(Pet pet) {
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             
             if (currentUserId == null) {
-                Toast.makeText(context, "Faça login para reportar um avistamento.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, context.getString(R.string.text_login_required), Toast.LENGTH_SHORT).show();
                 return;
             }
             
             if (currentUserId.equals(pet.getOwnerId())) {
-                Toast.makeText(context, "Você não pode reportar um avistamento do seu próprio pet.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, context.getString(R.string.text_cant_report_own), Toast.LENGTH_SHORT).show();
                 return;
             }
             
             db.collection("users").document(currentUserId).get()
                     .addOnSuccessListener(documentSnapshot -> {
                         if (!documentSnapshot.exists()) {
-                            Toast.makeText(context, "Complete seu perfil para reportar um avistamento.", Toast.LENGTH_LONG).show();
+                            Toast.makeText(context, context.getString(R.string.text_complete_profile), Toast.LENGTH_LONG).show();
                             return;
                         }
                         
@@ -171,25 +185,25 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.PetViewHolder> {
                             newSighting.setSightingDate(Timestamp.now());
                             newSighting.setLocation(reporter.getFullAddress() != null ? reporter.getFullAddress() : "Localização não informada");
                             newSighting.setMessage("Avistado perto do meu endereço.");
-                            newSighting.setStatus("Pendente");
+                            newSighting.setStatusEnum(Sighting.STATUS.PENDING);
                             
                             db.collection("sightings").document(newSighting.getId()).set(newSighting)
                                     .addOnSuccessListener(aVoid -> {
                                         Log.d(TAG, "Avistamento criado com sucesso no Firestore!");
-                                        Toast.makeText(context, "Avistamento reportado com sucesso!", Toast.LENGTH_SHORT).show();
-                                        EmailService.sendEmail(pet, reporter);
+                                        Toast.makeText(context, context.getString(R.string.sighting_created), Toast.LENGTH_SHORT).show();
+                                        EmailService.sendEmail(context, pet, reporter);
                                     })
                                     .addOnFailureListener(err -> {
                                         Log.e(TAG, "Erro ao guardar o avistamento no Firestore.", err);
-                                        Toast.makeText(context, "Erro ao reportar avistamento.", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(context, context.getString(R.string.error_register), Toast.LENGTH_SHORT).show();
                                     });
                         } else {
-                            Toast.makeText(context, "Seu perfil está incompleto. Por favor, atualize seus dados.", Toast.LENGTH_LONG).show();
+                            Toast.makeText(context, context.getString(R.string.alert_low_profile), Toast.LENGTH_LONG).show();
                         }
                     })
                     .addOnFailureListener(e -> {
                         Log.e(TAG, "Falha ao buscar os dados do utilizador.", e);
-                        Toast.makeText(context, "Erro ao buscar seus dados. Tente novamente.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, context.getString(R.string.error_load_profile), Toast.LENGTH_SHORT).show();
                     });
         }
     }

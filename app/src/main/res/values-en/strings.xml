@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="default_web_client_id" translatable="false">foo</string>
+    <string name="app_name">Where Is My Pet?</string>
+
+    <string-array name="filtros_status">
+        <item>All</item>
+        <item>Missing</item>
+        <item>Found</item>
+    </string-array>
+
+    <string name="menu_edit_profile">Edit Profile</string>
+    <string name="menu_language">Language / Idioma</string>
+    <string name="menu_logout">Logout</string>
+
+    <string name="title_create_account">Create your account</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_password">Password</string>
+    <string name="btn_login">Login</string>
+    <string name="btn_logoff">Logoff</string>
+    <string name="btn_register">Register</string>
+    <string name="btn_login_google">Sign in with Google</string>
+    <string name="btn_register_action">Sign Up</string>
+    <string name="error_fill_fields">Please fill all fields</string>
+    <string name="error_login">Login error</string>
+    <string name="error_auth">Authentication failed</string>
+    <string name="error_google_login">Google login failed</string>
+    <string name="success_register">User registered successfully</string>
+    <string name="error_register">Registration error</string>
+
+    <string name="filter_label">Filter Status:</string>
+    <string name="switch_my_posts">My Posts</string>
+    <string name="desc_add_pet">Add Pet</string>
+    <string name="text_login_required">Please login to report a sighting.</string>
+    <string name="text_cant_report_own">You cannot report a sighting of your own pet.</string>
+    <string name="text_complete_profile">Complete your profile to report a sighting.</string>
+
+    <string name="title_add_pet">Register Missing Pet</string>
+    <string name="title_edit_pet_info">Edit Pet Info</string>
+    <string name="btn_select_image">Select Image</string>
+    <string name="hint_pet_name">Pet Name</string>
+    <string name="hint_pet_desc">Description</string>
+    <string name="hint_pet_date">Date Missing</string>
+    <string name="btn_save_pet">Save Pet</string>
+    <string name="error_select_image">Please select an image</string>
+    <string name="error_image_processing">Error processing image</string>
+    <string name="success_pet_saved">Pet saved successfully</string>
+    <string name="error_pet_save">Error saving pet</string>
+
+    <string name="title_edit_profile">Edit Profile</string>
+    <string name="hint_fullname">Full Name</string>
+    <string name="hint_phone">Phone</string>
+    <string name="label_address">Address</string>
+    <string name="hint_street">Street</string>
+    <string name="hint_number">Number</string>
+    <string name="hint_district">District</string>
+    <string name="hint_city">City</string>
+    <string name="hint_uf">State (UF)</string>
+    <string name="btn_save">Save</string>
+    <string name="success_profile_update">Profile updated successfully</string>
+    <string name="error_profile_update">Error updating: </string>
+
+    <string name="status_missing">Missing</string>
+    <string name="status_found">Found</string>
+    <string name="label_missing_at">Missing since: </string>
+    <string name="btn_found_pet">I found your pet</string>
+    <string name="btn_edit">Edit</string>
+    <string name="btn_delete">Delete</string>
+    <string name="btn_report_seen">I saw this pet!</string>
+    <string name="label_sightings">Reported Sightings</string>
+    <string name="dialog_delete_title">Delete Post</string>
+    <string name="dialog_delete_msg">Are you sure you want to delete this post?</string>
+    <string name="dialog_yes">Yes, Delete</string>
+    <string name="dialog_cancel">Cancel</string>
+    <string name="msg_deleted">Post deleted.</string>
+    <string name="error_delete">Error deleting.</string>
+    <string name="error_load_details">Error loading pet details.</string>
+
+    <string name="label_reported_by">Reported by: </string>
+    <string name="label_date">Date: </string>
+    <string name="label_location">Location: </string>
+    <string name="label_status">Status: </string>
+    <string name="status_pending">Pending</string>
+    <string name="btn_confirm">Confirm</string>
+    <string name="btn_reject">Reject</string>
+    <string name="msg_status_updated">Sighting status updated!</string>
+    <string name="sighting_created">Sighting reported successfully!</string>
+    
+    <string name="alert_missing_publi">This post no longer exists.</string>
+<string name="error_report_sighting">Error reporting sighting.</string>
+<string name="alert_low_profile">It looks like your profile is incomplete. Please update your details.</string>
+<string name="error_load_profile">Error fetching your data. Please try again.</string>
+
+<string name="email_subject">Good news! Your pet may have been found!</string>
+<string name="email_body">Hello!\n\nUser %1$s saw your pet \"%2$s\" and clicked \'I found your pet\' in the app!\n\nSee where to find this person:\n%3$s\nContact the user at: %4$s\n\nWe hope you are reunited soon! 🐾❤️</string>
+</resources>

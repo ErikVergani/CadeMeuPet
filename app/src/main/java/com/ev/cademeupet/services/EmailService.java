@@ -1,7 +1,9 @@
 package com.ev.cademeupet.services;
 
+import android.content.Context;
 import android.net.Uri;
 
+import com.ev.cademeupet.R;
 import com.ev.cademeupet.models.User;
 import com.ev.cademeupet.models.Pet;
 
@@ -18,10 +20,10 @@ import javax.mail.internet.MimeMessage;
 
 public class EmailService 
 {
-    public static void sendEmail( Pet pet, User user ) 
+    public static void sendEmail(Context context, Pet pet, User user)
     {
-        final String sender = "dev.ev.sender@gmail.com";
-        final String pass = "sssf pttk sjmk vclp";
+        final String sender = "";
+        final String pass = "";
         
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
@@ -36,14 +38,15 @@ public class EmailService
             }
         });
         
-        String subject = "Boas notícias! Seu pet pode ter sido encontrado!";
+        String subject = context.getString(R.string.email_subject);
+        String mapLink = "https://www.google.com/maps/search/?api=1&query=" + Uri.encode( user.getFullAddress() );
         
-        String text = "Olá!\n\n" +
-                "O usuário " + user.getFullName() + " viu o seu pet \"" + pet.getName() + "\" e clicou em 'Encontrei seu pet' no aplicativo Cadê Meu Pet!\n\n" +
-                "Veja onde encontrar essa pessoa: \n" +
-                "https://www.google.com/maps/search/?api=1&query=" + Uri.encode( user.getFullAddress() ) + "\n" +
-                "Entre em contato com o usuário através do número: " + user.getPhone() +
-                "\n\n Esperamos que vocês se reencontrem em breve! 🐾❤️";
+        String text = context.getString(R.string.email_body, 
+                user.getFullName(), // %1$s
+                pet.getName(),      // %2$s
+                mapLink,            // %3$s
+                user.getPhone()     // %4$s
+        );
         
         new Thread(() -> {
             try {

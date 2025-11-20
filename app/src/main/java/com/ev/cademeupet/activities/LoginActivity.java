@@ -39,7 +39,7 @@ public class LoginActivity extends AppCompatActivity {
                         GoogleSignInAccount account = task.getResult(ApiException.class);
                         firebaseAuthWithGoogle(account.getIdToken());
                     } catch (ApiException e) {
-                        Toast.makeText(this, "Falha no login com o Google.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, getString( R.string.error_google_login ), Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -76,7 +76,7 @@ public class LoginActivity extends AppCompatActivity {
                         startActivity(new Intent(this, MainActivity.class));
                         finish();
                     } else {
-                        Toast.makeText(this, "Falha na autenticação.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, R.string.error_auth, Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -86,7 +86,7 @@ public class LoginActivity extends AppCompatActivity {
         String pass = txtPass.getText().toString();
         
         if (email.isEmpty() || pass.isEmpty()) {
-            Toast.makeText(this, "Preencha todos os campos", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString( R.string.error_fill_fields ), Toast.LENGTH_SHORT).show();
             return;
         }
         
@@ -95,7 +95,7 @@ public class LoginActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         startActivity(new Intent(this, MainActivity.class));
                     } else {
-                        Toast.makeText(this, "Erro ao fazer login", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, getString( R.string.error_login ), Toast.LENGTH_SHORT).show();
                     }
                 });
     }

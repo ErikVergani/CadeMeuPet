@@ -26,7 +26,7 @@
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Filtrar Status:"
+                android:text="@string/filter_label"
                 android:textStyle="bold"
                 android:textColor="@android:color/white"
                 android:textSize="16sp"
@@ -43,7 +43,7 @@
                 android:id="@+id/switch_my_posts"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Meus Posts"
+                android:text="@string/switch_my_posts"
                 android:textColor="@android:color/white"
                 android:layout_marginStart="16dp"/>
 
@@ -59,7 +59,7 @@
             android:layout_marginBottom="80dp" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:contentDescription="Adicionar Pet"
+            android:contentDescription="@string/desc_add_pet"
             android:id="@+id/float_add"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

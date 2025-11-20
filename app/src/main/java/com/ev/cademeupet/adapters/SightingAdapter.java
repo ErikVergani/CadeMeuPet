@@ -10,6 +10,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.ev.cademeupet.R;
+import com.ev.cademeupet.models.Pet;
 import com.ev.cademeupet.models.Sighting;
 import com.google.firebase.firestore.FirebaseFirestore;
 import java.text.SimpleDateFormat;
@@ -63,22 +64,32 @@ public class SightingAdapter extends RecyclerView.Adapter<SightingAdapter.Sighti
         }
         
         void bind(Sighting sighting) {
-            reporterName.setText("Reportado por: " + sighting.getReporterName());
-            sightingLocation.setText("Local: " + sighting.getLocation());
-            sightingStatus.setText("Status: " + sighting.getStatus());
+            reporterName.setText(context.getString(R.string.label_reported_by) + sighting.getReporterName());
+            sightingLocation.setText(context.getString(R.string.label_location) + sighting.getLocation());
             
+            Sighting.STATUS statusEnum = sighting.getStatusEnum();
+            String statusText;
+            
+            if (statusEnum == Sighting.STATUS.CONFIRMED) {
+                statusText = context.getString(R.string.btn_confirm);
+            } else if (statusEnum == Sighting.STATUS.REJECTED) {
+                statusText = context.getString(R.string.btn_reject);  
+            } else {
+                statusText = context.getString(R.string.status_pending);
+            }
+            sightingStatus.setText(context.getString(R.string.label_status) + statusText);
+
             if (sighting.getSightingDate() != null) {
                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy 'às' HH:mm", Locale.getDefault());
-                sightingDate.setText(sdf.format(sighting.getSightingDate().toDate()));
+                sightingDate.setText(context.getString(R.string.label_date) + sdf.format(sighting.getSightingDate().toDate()));
             }
-            
-            // Mostra os botões de confirmação apenas para o dono do pet e se o status for "Pendente"
-            if (currentUserId.equals(petOwnerId) && "Pendente".equals(sighting.getStatus())) {
+
+            if (currentUserId.equals(petOwnerId) && statusEnum == Sighting.STATUS.PENDING) {
                 btnConfirm.setVisibility(View.VISIBLE);
                 btnReject.setVisibility(View.VISIBLE);
-                
-                btnConfirm.setOnClickListener(v -> updateSightingStatus(sighting, "Confirmado"));
-                btnReject.setOnClickListener(v -> updateSightingStatus(sighting, "Rejeitado"));
+
+                btnConfirm.setOnClickListener(v -> updateSightingStatus(sighting, Sighting.STATUS.CONFIRMED.name()));
+                btnReject.setOnClickListener(v -> updateSightingStatus(sighting, Sighting.STATUS.REJECTED.name()));
             } else {
                 btnConfirm.setVisibility(View.GONE);
                 btnReject.setVisibility(View.GONE);
@@ -86,16 +97,16 @@ public class SightingAdapter extends RecyclerView.Adapter<SightingAdapter.Sighti
         }
         
         private void updateSightingStatus(Sighting sighting, String newStatus) {
-            if ("Confirmado".equals(newStatus)) {
+            if (Sighting.STATUS.CONFIRMED.name().equals(newStatus)) {
                 FirebaseFirestore.getInstance().collection("pets").document(sighting.getPetId())
-                        .update("status", "Encontrado")
-                        .addOnFailureListener(e -> Toast.makeText(context, "Erro ao atualizar status do pet.", Toast.LENGTH_SHORT).show());
+                        .update("status", Pet.STATUS.FOUND.name()) 
+                        .addOnFailureListener(e -> Toast.makeText(context, context.getString(R.string.error_profile_update), Toast.LENGTH_SHORT).show());
             }
-            
+
             FirebaseFirestore.getInstance().collection("sightings").document(sighting.getId())
                     .update("status", newStatus)
-                    .addOnSuccessListener(aVoid -> Toast.makeText(context, "Status do avistamento atualizado!", Toast.LENGTH_SHORT).show())
-                    .addOnFailureListener(e -> Toast.makeText(context, "Erro ao atualizar status do avistamento.", Toast.LENGTH_SHORT).show());
+                    .addOnSuccessListener(aVoid -> Toast.makeText(context, context.getString(R.string.msg_status_updated), Toast.LENGTH_SHORT).show())
+                    .addOnFailureListener(e -> Toast.makeText(context, "Erro ao atualizar status.", Toast.LENGTH_SHORT).show());
         }
     }
 }

@@ -17,7 +17,7 @@
                 android:id="@+id/sighting_reporter_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Reportado por: Nome do Utilizador"
+                android:text="@string/label_reported_by"
                 android:textColor="@android:color/white"
                 android:textStyle="bold"
                 android:textSize="16sp"/>
@@ -26,7 +26,7 @@
                 android:id="@+id/sighting_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Data: 01/01/2025 às 14:30"
+                android:text="@string/label_date"
                 android:textColor="#AAAAAA"
                 android:layout_marginTop="4dp"/>
 
@@ -34,7 +34,7 @@
                 android:id="@+id/sighting_location"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Local: Rua Exemplo, 123"
+                android:text="@string/label_location"
                 android:textColor="#AAAAAA"
                 android:layout_marginTop="4dp"/>
 
@@ -42,7 +42,7 @@
                 android:id="@+id/sighting_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Status: Pendente"
+                android:text="@string/label_status"
                 android:textColor="@android:color/white"
                 android:layout_marginTop="8dp"
                 android:textStyle="italic"/>
@@ -58,7 +58,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Confirmar"
+                    android:text="@string/btn_confirm"
                     android:backgroundTint="#4CAF50"
                     android:textColor="@android:color/white"
                     android:visibility="gone"
@@ -69,7 +69,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Rejeitar"
+                    android:text="@string/btn_reject"
                     android:backgroundTint="#F44336"
                     android:textColor="@android:color/white"
                     android:visibility="gone"/>
