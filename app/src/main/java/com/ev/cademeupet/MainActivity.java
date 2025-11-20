@@ -1,6 +1,7 @@
 package com.ev.cademeupet;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,6 +20,7 @@ import com.ev.cademeupet.activities.EditUser;
 import com.ev.cademeupet.activities.LoginActivity;
 import com.ev.cademeupet.adapters.PetAdapter;
 import com.ev.cademeupet.models.Pet;
+import com.ev.cademeupet.models.User;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -26,8 +28,13 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.SetOptions;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class MainActivity extends AppCompatActivity {
@@ -71,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
         
         addPetFab.setOnClickListener(v -> startActivity(new Intent(this, AddPetActivity.class)));
         
+        checkUserLanguage();
         setupFilters();
         listenToPetUpdates();
     }
@@ -116,11 +124,15 @@ public class MainActivity extends AppCompatActivity {
                     .filter(pet -> currentUserId.equals(pet.getOwnerId()))
                     .collect(Collectors.toList());
         }
+        int selectedPosition = statusSpinner.getSelectedItemPosition();
         
-        String selectedStatus = statusSpinner.getSelectedItem().toString();
-        if (!selectedStatus.equals("Todos")) {
+        if (selectedPosition == 1) { 
             filteredList = filteredList.stream()
-                    .filter(pet -> selectedStatus.equalsIgnoreCase(pet.getStatus()))
+                    .filter(pet -> pet.getStatusEnum() == Pet.STATUS.MISSING)
+                    .collect(Collectors.toList());
+        } else if (selectedPosition == 2) {
+            filteredList = filteredList.stream()
+                    .filter(pet -> pet.getStatusEnum() == Pet.STATUS.FOUND)
                     .collect(Collectors.toList());
         }
         
@@ -139,7 +151,15 @@ public class MainActivity extends AppCompatActivity {
         if (itemId == R.id.menu_editar_perfil) {
             startActivity(new Intent(this, EditUser.class));
             return true;
-        } else if (itemId == R.id.menu_sair) {
+        } 
+        else if (itemId == R.id.lang_pt) {
+            setLocale("pt", true);
+            return true;
+        } else if (itemId == R.id.lang_en) {
+            setLocale("en",true);
+            return true;
+        }
+        else if (itemId == R.id.menu_sair) {
             auth.signOut();
             mGoogleSignInClient.signOut().addOnCompleteListener(this,
                     task -> {
@@ -150,5 +170,64 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+    
+     private void setLocale(String langCode, boolean saveToDb) {
+        if (saveToDb && auth.getCurrentUser() != null) {
+            updateLanguageInFirestore(langCode);
+        }
+
+        Locale locale = new Locale(langCode);
+        Locale.setDefault(locale);
+        Configuration config = new Configuration();
+        config.setLocale(locale);
+        
+        getResources().updateConfiguration(config, getResources().getDisplayMetrics());
+        
+        Intent intent = getIntent();
+        finish();
+        startActivity(intent);
+    }
+    
+    private void checkUserLanguage() {
+        if (auth.getCurrentUser() == null) return;
+        
+        String uid = auth.getCurrentUser().getUid();
+        db.collection("users").document(uid).get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                User user = documentSnapshot.toObject(User.class);
+                if (user != null && user.getLanguage() != null) {
+                    String savedLang = user.getLanguage();
+                    String currentLang = getResources().getConfiguration().getLocales().get(0).getLanguage();
+                    
+                    if (!savedLang.equals(currentLang)) {
+                        setLocale(savedLang, false);
+                    }
+                }
+            }
+        });
+    }
+        
+    private void updateUserLanguage(String langCode) 
+    {
+        String uid = auth.getCurrentUser().getUid();
+        Map<String, Object> data = new HashMap<>();
+        data.put("language", langCode);
+
+        db.collection("users").document(uid)
+                .set(data, SetOptions.merge())
+                .addOnFailureListener(e -> Log.e("MainActivity", "Erro ao salvar idioma", e));
+    }
+    
+    private void updateLanguageInFirestore(String langCode) {
+        if (auth.getCurrentUser() == null) return;
+
+        String uid = auth.getCurrentUser().getUid();
+        Map<String, Object> data = new HashMap<>();
+        data.put("language", langCode);
+
+        db.collection("users").document(uid)
+                .set(data, SetOptions.merge())
+                .addOnFailureListener(e -> Log.e("MainActivity", "Erro ao salvar idioma", e));
     }
 }
